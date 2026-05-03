@@ -1,0 +1,18 @@
+# Análisis y ML
+numpy
+pandas
+scikit-learn
+xgboost
+scipy
+statsmodels
+shap
+
+# Visualización
+matplotlib
+seaborn
+ydata-profiling
+
+# Entorno de trabajo
+ipykernel
+ipywidgets
+tqdm
