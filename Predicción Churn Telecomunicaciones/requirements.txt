@@ -6,12 +6,13 @@ xgboost
 scipy
 statsmodels
 shap
+optuna
 
 # Visualización
 matplotlib
 seaborn
 ydata-profiling
-
+streamlit
 # Entorno de trabajo
 ipykernel
 ipywidgets
