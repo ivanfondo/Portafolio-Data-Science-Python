@@ -119,7 +119,8 @@ if model is not None:
 
             shap.force_plot(
                 explainer.expected_value, 
-                shap_values[0], 
+                shap_values[0],
+                features=valores_reales,
                 feature_names=features,
                 matplotlib=True, 
                 show=False,
