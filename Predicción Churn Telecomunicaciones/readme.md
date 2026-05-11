@@ -58,4 +58,4 @@ Para ejecutar el notebook, se recomienda emplear un entorno virtual:
 2. Activar entorno: 
    - Windows: `.\venv\Scripts\activate`
    - Mac/Linux: `source venv/bin/activate`
-3. Instalar librerías: `pip install -r requirements.txt`
+3. Instalar librerías: `pip install -r requirements_base.txt`
