@@ -45,11 +45,11 @@ st.markdown("""
 @st.cache_resource
 def load_assets():
     try:
-        assets = joblib.load('modelo_churn_final.pkl')
+        assets = joblib.load('PrediccionChurnTelco/modelo_churn_final.pkl')
         model = assets['model']
         features = assets['features'] 
-        df_modelo = pd.read_csv('datos_test_dashboard.csv', index_col=0) 
-        df_visual = pd.read_csv('TelcoChurn.csv', index_col=0) 
+        df_modelo = pd.read_csv('PrediccionChurnTelco/datos_test_dashboard.csv', index_col=0) 
+        df_visual = pd.read_csv('PrediccionChurnTelco/TelcoChurn.csv', index_col=0) 
         explainer = shap.TreeExplainer(model)
         return model, df_modelo, df_visual, explainer, features
     except Exception as e:
