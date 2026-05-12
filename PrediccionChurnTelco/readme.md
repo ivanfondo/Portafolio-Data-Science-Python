@@ -52,6 +52,9 @@ Para obtener unos datos más claros, se construye una tabla de probabilidades en
 
 Observando las 3 principales variables binarias que más probabilidad tienen en la fuga se puede llegar a la conclusión de que este tipo de cliente podría pertenecer a una franja de cliente jóven. Este tipo de cliente tiene mayor facilidad a la hora de contratar servicios, principalmente online dado su soltura para defenderse con este formato. Esta soltura dará lugar a que busque siempre el mejor servicio al mejor precio y ahí es donde el mal servicio de la fibra óptica está jugando un papel relevante.
 
+
+Para no quedar solo en el apartado técnico, se ha creado un dashboard con Streamlit en donde se facilita el consumo para el usuario final. En el siguiente enlace se puede consultar el dashboard generado en formato web.
+https://telcochurnappif.streamlit.app/
 ### NOTA
 Para ejecutar el notebook, se recomienda emplear un entorno virtual:
 1. Crear entorno: `python -m venv venv`
