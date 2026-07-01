@@ -6,5 +6,4 @@ scipy == 1.17.1
 optuna == 4.9.0
 mlextend == 0.25.0
 networkx == 3.6.1
-matplotlib == 3.11.0
 pyvis == 0.3.2
