@@ -4,6 +4,6 @@ numpy == 2.4.6
 implicit == 0.7.3
 scipy == 1.17.1
 optuna == 4.9.0
-mlextend == 0.25.0
+mlxtend == 0.25.0
 networkx == 3.6.1
 pyvis == 0.3.2
