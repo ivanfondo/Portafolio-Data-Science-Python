@@ -8,3 +8,4 @@ mlxtend == 0.25.0
 networkx == 3.6.1
 pyvis == 0.3.2
 streamlit == 1.58.0
+plotly == 6.8.0
