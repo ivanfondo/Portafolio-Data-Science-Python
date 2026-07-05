@@ -38,7 +38,7 @@ with tab1:
     )
 
     # Leemos el HTML del grafo que generamos con pyvis
-    with open("grafo_cocompra_v2.html", "r", encoding="utf-8") as f:
+    with open("dashboard/grafo_cocompra_v2.html", "r", encoding="utf-8") as f:
         html_grafo = f.read()
 
     # Lo embebemos en el dashboard
