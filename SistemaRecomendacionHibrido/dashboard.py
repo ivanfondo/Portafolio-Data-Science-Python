@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 import plotly.graph_objects as go
+import os
 
 # Configuración de la página
 st.set_page_config(page_title="Sistema de Recomendación", layout="wide")
@@ -37,8 +38,12 @@ with tab1:
         "con frecuencia. Los colores representan clústeres de productos afines."
     )
 
+    # Ruta relativa al directorio donde está dashboard.py
+    directorio_actual = os.path.dirname(os.path.abspath(__file__))
+    ruta_grafo = os.path.join(directorio_actual, "grafo_cocompra_v2.html")
+
     # Leemos el HTML del grafo que generamos con pyvis
-    with open("dashboard/grafo_cocompra_v2.html", "r", encoding="utf-8") as f:
+    with open(ruta_grafo, "r", encoding="utf-8") as f:
         html_grafo = f.read()
 
     # Lo embebemos en el dashboard
