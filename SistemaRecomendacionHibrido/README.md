@@ -6,6 +6,16 @@ El sistema analiza el historial de compra de cada cliente para identificar sus p
 
 Hacer recomendaciones personalizadas es importante, pero tal vez no todos los clientes hagan uso de su correo electrónico. Para ello, se enfoca el problema desde otra perspectiva, la inteligencia de negocio, es decir, conocer la relación de compra entre los productos nos permite tomar decisiones estratégicas a la hora de realizar promociones o colocar productos en las tiendas, buscando crear un efecto gancho, en donde se busca generar una necesidad al cliente para que compre productos complementarios, logrando de esta manera aumentar el ticket medio.
 
+---
+# Tabla contenido
+
+* [Contexto](#-contexto)
+* [Desarrollo sistema recomendación](#-desarrollo-sistema-recomendación)
+* [Apriori para inteligencia de negocio](#-apriori-para-inteligencia-de-negocio)
+* [Dashboard monitorización](#-dashboard-monitorización)
+* [Problemas del ejercicio](#-problemas-del-ejercicio)
+
+---
 
 ### CONTEXTO
 El problema se ha planteado para una superficie comercial, en donde el objetivo es realizar recomendaciones entre visitas. Los datos empleados han sido generados de forma sintética, por tanto nos enfrentamos a situaciones que no se dan en la realidad. Entre estas situaciones nos encontramos con datos totalmente limpios, algo que en la realidad nunca se va a dar. Los datos reales presentarían patrones menos diferenciados y más ruidosos, mientras que en este dataset sintético los perfiles de cliente están deliberadamente bien diferenciados para facilitar el aprendizaje de los modelos.
