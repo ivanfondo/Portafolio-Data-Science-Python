@@ -34,8 +34,20 @@ with col_titulo:
     st.title("Sistema de Recomendación Híbrido")
 with col_fecha:
     st.markdown(
-        f"<div style='text-align: right; padding-top: 25px; color: #666;'>"
-        f"Última actualización<br><strong>{fecha_actualizacion}</strong></div>",
+        f"""
+        <div style="
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 12px 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 5px solid #378ADD;
+            text-align: center;
+            margin-top: 20px;
+        ">
+            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Última actualización</div>
+            <div style="font-size: 18px; font-weight: 700; color: #378ADD;">{fecha_actualizacion}</div>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
