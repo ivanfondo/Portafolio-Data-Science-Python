@@ -87,12 +87,12 @@ with tab2:
         margin-bottom: 15px;
     ">
         <p style="margin: 0 0 10px 0; color: #333;">
-            <strong style="color: #000000;">Precision@10</strong>: de los 10 productos
+            <strong style="color: #000000;">Precision@K</strong>: de los K productos
             recomendados, qué proporción acabó comprando el cliente. Mide la puntería
             de las recomendaciones.
         </p>
         <p style="margin: 0; color: #333;">
-            <strong style="color: #000000;">Recall@10</strong>: de todo lo que el cliente
+            <strong style="color: #000000;">Recall@K</strong>: de todo lo que el cliente
             compró, qué proporción cubrieron las recomendaciones. Mide la cobertura.
         </p>
     </div>
