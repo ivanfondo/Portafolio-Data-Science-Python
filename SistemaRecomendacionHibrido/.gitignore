@@ -1,5 +1,5 @@
 .venv/
-lib/
+/lib/
 utils.js
 __pycache__/
 *.pyc
