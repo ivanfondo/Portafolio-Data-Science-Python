@@ -40,7 +40,7 @@ with tab1:
 
     # Ruta relativa al directorio donde está dashboard.py
     directorio_actual = os.path.dirname(os.path.abspath(__file__))
-    ruta_grafo = os.path.join(directorio_actual, "grafo_cocompra_v2.html")
+    ruta_grafo = os.path.join(directorio_actual, "dashboard", "grafo_cocompra_v2.html")
 
     # Leemos el HTML del grafo que generamos con pyvis
     with open(ruta_grafo, "r", encoding="utf-8") as f:
