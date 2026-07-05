@@ -130,29 +130,33 @@ with tab2:
 # PERSONALIZACIÓN DE DASHBOARD
 st.markdown("""
 <style>
-    /* Contenedor de las pestañas */
+    /* Contenedor de las pestañas - sin fondo */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: #f0f2f6;
-        padding: 8px;
-        border-radius: 12px;
+        gap: 10px;
+        background-color: transparent;
+        padding: 4px 0;
     }
 
     /* Cada pestaña individual */
     .stTabs [data-baseweb="tab"] {
         height: 50px;
         background-color: #ffffff;
-        border-radius: 8px;
-        padding: 0 24px;
+        border-radius: 10px;
+        padding: 0 28px;
         font-weight: 500;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* Pestaña activa (seleccionada) */
+    /* Pestaña activa - con degradado */
     .stTabs [aria-selected="true"] {
-        background-color: #378ADD;
-        color: #ffffff;
-        box-shadow: 0 2px 6px rgba(55,138,221,0.4);
+        background: linear-gradient(135deg, #378ADD 0%, #7F77DD 100%);
+        color: #ffffff !important;
+        box-shadow: 0 3px 10px rgba(55,138,221,0.4);
+    }
+
+    /* Quitar la línea/subrayado inferior por defecto */
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: transparent;
     }
 
     /* Fondo general de la app */
