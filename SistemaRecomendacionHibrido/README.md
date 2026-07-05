@@ -1,5 +1,17 @@
 ## SISTEMA DE RECOMENDACIÓN HÍBRIDO Y ALGORITMO APRIORI PARA INTELIGENCIA DE NEGOCIO
 
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-3.0.3-150458?logo=pandas&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-2.4.6-013243?logo=numpy&logoColor=white)
+![implicit](https://img.shields.io/badge/implicit-0.7.3-F7931E)
+![Optuna](https://img.shields.io/badge/Optuna-4.9.0-4B4BFF)
+![mlxtend](https://img.shields.io/badge/mlxtend-0.25.0-orange)
+![Plotly](https://img.shields.io/badge/Plotly-6.8.0-3F4F75?logo=plotly&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.58.0-FF4B4B?logo=streamlit&logoColor=white)
+![NetworkX](https://img.shields.io/badge/NetworkX-3.6.1-2C7BB6)
+![PyVis](https://img.shields.io/badge/PyVis-0.3.2-green)
+[![Dashboard](https://img.shields.io/badge/Dashboard-Ver%20en%20vivo-FF4B4B?logo=streamlit&logoColor=white)](https://monitorizacionsistemarecomendacion.streamlit.app/)
+
 Uno de los principales problemas que se puede encontrar un negocio en el sector retail es buscar aumentar la fidelización de los clientes y por consiguiente las ventas. Este problema, puede ser abordado desde diferentes perspectivas, pero en esta ocasión, el planteamiento es realizar recomendaciones personalizadas a los clientes.
 
 El sistema analiza el historial de compra de cada cliente para identificar sus patrones de consumo y, a partir de ellos, generar un listado de productos afines a sus preferencias. Estas recomendaciones se envían mediante correo electrónico con el objetivo de incentivar un mayor consumo.. La frecuencia y relevancia de las recomendaciones son clave: un exceso de comunicaciones o sugerencias poco acertadas puede resultar contraproducente y generar rechazo hacia la marca.
@@ -9,11 +21,12 @@ Hacer recomendaciones personalizadas es importante, pero tal vez no todos los cl
 ---
 # Tabla contenido
 
-* [Contexto](#-contexto)
-* [Desarrollo sistema recomendación](#-desarrollo-sistema-recomendación)
-* [Apriori para inteligencia de negocio](#-apriori-para-inteligencia-de-negocio)
-* [Dashboard monitorización](#-dashboard-monitorización)
-* [Problemas del ejercicio](#-problemas-del-ejercicio)
+* [Contexto](#contexto)
+* [Desarrollo sistema recomendación](#desarrollo-sistema-recomendación)
+* [Apriori para inteligencia de negocio](#apriori-para-inteligencia-de-negocio)
+* [Dashboard monitorización](#dashboard-monitorización)
+* [Consideraciones para producción](#consideraciones-para-producción)
+* [Ejecutar notebooks](#ejecutar-notebooks)
 
 ---
 
@@ -46,13 +59,13 @@ Para consumir los resultados, se genera un archivo CSV, que sería cargado en el
 
 
 ### APRIORI PARA INTELIGENCIA DE NEGOCIO
-El algoritmo Apriori se puede emplear como sistema recomendador, pero en el contexto en el que se sitúa este ejercicio, el enfoque se centra en entender como se relacionan los productos y buscar definir una estrategia de colocación o promoción dentro de las tiendas. El algoritmo se centra en el análisis de las cestas de compra para crear perfiles.
+El algoritmo Apriori se puede emplear como sistema recomendador, pero en el contexto en el que se sitúa este ejercicio, el enfoque se centra en entender cómo se relacionan los productos y buscar definir una estrategia de colocación o promoción dentro de las tiendas. El algoritmo se centra en el análisis de las cestas de compra para crear perfiles.
 
 Para este algoritmo, no hay una métrica objetivo que sea optimizable como en ALS, al contrario, como se basa en reglas, el criterio con el que se aplican las mismas dependerá de las decisiones que la persona encargada del negocio considere mejor.
 Tres métricas que se pueden observar y actúan como reglas son:
 - Support: frecuencia de aparición de la combinación en las cestas. En este ejercicio se aplica un mínimo del 3%.
 - Confidence: indica la confianza con la que se compran los productos. Es importante ser cauteloso con este valor, ya que una confianza del 90% no indica que los productos resulten complementarios. Alguien que compra agua puede comprar un snack con una confianza del 80% por ejemplo, pero pueden mostrar un lift de 1.05, siendo una compra meramente casual. Se indica un valor mínimo del 50%
-- Lift: métrica estrella. Mide la fuerza de asociación entre productos. Lo ideal es que este valor sea superior a 1, cuanto más grande sea, más fuerte es la asocación entre productos. Si el valor es igual a 1 los productos presentan independencia total entre ellos, la relación es aleatoria. Si el valor es inferior a 1, en vez de actuar como productos complementarios, actúan como productos sustitituvos. Se aplica un valor mínimo de 2.
+- Lift: métrica estrella. Mide la fuerza de asociación entre productos. Lo ideal es que este valor sea superior a 1, cuanto más grande sea, más fuerte es la asociación entre productos. Si el valor es igual a 1 los productos presentan independencia total entre ellos, la relación es aleatoria. Si el valor es inferior a 1, en vez de actuar como productos complementarios, actúan como productos sustitutivos. Se aplica un valor mínimo de 2.
 
 La necesidad de aplicar reglas no solo es una decisión de negocio, también es necesario para poder filtrar ya que el modelo posiblemente genere un elevado número de reglas que resulte poco manejable. Al reducir el número de reglas mediante los filtros, se puede generar un grafo dinámico que muestra de una forma más amigable el comportamiento de los productos. 
 
@@ -63,7 +76,7 @@ Es posible interactuar con el grafo en el siguiente enlace: https://ivanfondo.gi
 
 Los resultados del algoritmo permiten detectar 8 clusters.
 
-- Grupo 1: perfil fiesta/apertivos
+- Grupo 1: perfil fiesta/aperitivos
 - Grupo 2: perfil cocina/frescos
 - Grupo 3: perfil bebé
 - Grupo 4: perfil hogar/droguería
@@ -72,12 +85,12 @@ Los resultados del algoritmo permiten detectar 8 clusters.
 - Grupo 7: perfil café
 - Grupo 8: perfil pasta
 
-El resultado matemático devuelve 8 tipo de perfiles pero es importante tener en cuenta que esta parte se desarrolla con un enfoque de inteligencia de negocio, lo que nos lleva al siguiente punto. Si se observa el grupo 7 y 8, nos podemos dar cuenta de que son dos grupos que se pueden fusionar con el grupo 2 y grupo 6. La decisión final sobre el número de grupos que vamos a identificar reside en la persona que toma las decisiones de negocio. 
+El resultado matemático devuelve 8 tipos de perfiles pero es importante tener en cuenta que esta parte se desarrolla con un enfoque de inteligencia de negocio, lo que nos lleva al siguiente punto. Si se observa el grupo 7 y 8, nos podemos dar cuenta de que son dos grupos que se pueden fusionar con el grupo 2 y grupo 6. La decisión final sobre el número de grupos que vamos a identificar reside en la persona que toma las decisiones de negocio. 
 
 La identificación de grupos ayuda en gran medida a orientar las decisiones y el conocimiento humano es un criterio muy importante a tener en cuenta para dar un mayor contexto a los resultados.
 
 ### DASHBOARD MONITORIZACIÓN
-Finalmente se construye un dashboard para monitorear el grafo y el comportamiento de las métricas. Para este ejercicio el dashboard se desplieuga en Streamlit y cuenta con dos pestañas, cada una de ellas enfocada al grafo y otra a la monitorización de los resultados en los modelos.
+Finalmente se construye un dashboard para monitorizar el grafo y el comportamiento de las métricas. Para este ejercicio el dashboard se despliega en Streamlit y cuenta con dos pestañas, cada una de ellas enfocada al grafo y otra a la monitorización de los resultados en los modelos.
 
 En este caso, todos los valores se encuentran estáticos (se introducen a mano). Lo correcto es generar archivos CSV que vayan almacenando el histórico para poder hacer comparaciones y ser capaz de detectar cuando se produce data drift. 
 
@@ -85,8 +98,9 @@ En este caso, todos los valores se encuentran estáticos (se introducen a mano).
 
 Se puede interactuar con el dashboard desde este enlace: https://monitorizacionsistemarecomendacion.streamlit.app/
 
-### PROBLEMAS DEL EJERCICIO
-Como ya se ha mencionado, se trabaja con datos estáticos, por tanto solo hay un entrenamiento. Para llevar esto a un entorno real hay que crear varios scripts que se encargan de encapsular los modelos y transformar los datos por un lado. A mayores es necesario crear un script para entrenar los modelos. Como el entrenamiento es un proceso muy costoso, se repite cada cierto período. Al trabajando con una superficie comercial, el entrenamiento podría ser una vez al mes. Otro script a crear es el de inferencia, que se encarga de hacer las recomendaciones. Este script recibirá los parámetros del modelo entrenado de forma periódica y se consumirá cada vez que se quieran hacer recomendaciones a los clientes.
+### CCONSIDERACIONES PARA PRODUCCIÓN
+Como ya se ha mencionado, se trabaja con datos estáticos, por tanto solo hay un entrenamiento. Para llevar esto a un entorno real es necesario estructurar el código en varios scripts. Por un lado, módulos que encapsulan los modelos y transforman los datos. Por otro, un script de entrenamiento y otro de inferencia, separados porque tienen frecuencias de uso distintas.
+La frecuencia de uso distinta se debe principalmente a que el entrenamiento es un proceso muy costo, por tanto se realizaría una vez al mes.
 
 El pipeline de trabajo quedaría de la siguiente forma:
 ```
@@ -102,3 +116,64 @@ El pipeline de trabajo quedaría de la siguiente forma:
 ├── train.py                 # SCRIPT 1: entrena y guarda los modelos
 └── predict.py               # SCRIPT 2: genera recomendaciones y exporta CSV
 ```
+
+### EJECUTAR NOTEBOOKS
+
+## INSTALACIÓN Y EJECUCIÓN EN LOCAL
+
+Para ejecutar el proyecto en local, sigue estos pasos.
+
+1. Clonar el repositorio
+
+```bash
+git clone https://github.com/ivanfondo/Portafolio-Data-Science-Python.git
+cd Portafolio-Data-Science-Python/SistemaRecomendacionHibrido
+```
+
+ 2. Crear y activar un entorno virtual
+
+Se recomienda usar un entorno virtual para aislar las dependencias del proyecto.
+
+**En Windows (PowerShell):**
+```bash
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+**En Windows (CMD):**
+```bash
+python -m venv .venv
+.venv\Scripts\activate.bat
+```
+
+**En macOS / Linux:**
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Cuando el entorno esté activado, verás `(.venv)` al principio de la línea de comandos.
+
+ 3. Instalar las dependencias
+
+```bash
+pip install -r requirements_base.txt
+```
+
+4. Ejecutar los notebooks
+
+Los notebooks están numerados según el orden de lectura recomendado:
+
+1. `1_EDARecomendacion.ipynb` — análisis exploratorio de los datos.
+2. `2_SistemaHibridoLimpio.ipynb` — desarrollo del sistema de recomendación (popularidad, ALS y cascada).
+3. `3_Apriori.ipynb` — análisis de cesta de la compra (inteligencia de negocio).
+
+Puedes abrirlos con Jupyter, VS Code o cualquier editor compatible con notebooks.
+
+ 5. Ejecutar el dashboard en local (opcional)
+
+```bash
+streamlit run dashboard/dashboard.py
+```
+
+El dashboard se abrirá automáticamente en el navegador.
