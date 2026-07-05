@@ -25,7 +25,19 @@ def tarjeta_metrica(titulo, valor, color="#378ADD"):
     </div>
     """
 
-st.title("Sistema de Recomendación Híbrido")
+# Fecha de última actualización del sistema (proyecto estático)
+fecha_actualizacion = "05/07/2026"
+
+# Título y fecha en la misma línea (cabecera general, visible en todas las pestañas)
+col_titulo, col_fecha = st.columns([3, 1])
+with col_titulo:
+    st.title("Sistema de Recomendación Híbrido")
+with col_fecha:
+    st.markdown(
+        f"<div style='text-align: right; padding-top: 25px; color: #666;'>"
+        f"Última actualización<br><strong>{fecha_actualizacion}</strong></div>",
+        unsafe_allow_html=True
+    )
 
 # Creamos las dos pestañas
 tab1, tab2 = st.tabs(["Análisis de co-compra (Apriori)", "Rendimiento del sistema"])
