@@ -45,7 +45,7 @@ with col_fecha:
             margin-top: 20px;
         ">
             <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Última actualización</div>
-            <div style="font-size: 18px; font-weight: 700; color: #378ADD;">{fecha_actualizacion}</div>
+            <div style="font-size: 18px; font-weight: 700; color: #000000;">{fecha_actualizacion}</div>
         </div>
         """,
         unsafe_allow_html=True
