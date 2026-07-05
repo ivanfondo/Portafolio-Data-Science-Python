@@ -42,4 +42,53 @@ Para este algoritmo, no hay una métrica objetivo que sea optimizable como en AL
 Tres métricas que se pueden observar y actúan como reglas son:
 - Support: frecuencia de aparición de la combinación en las cestas. En este ejercicio se aplica un mínimo del 3%.
 - Confidence: indica la confianza con la que se compran los productos. Es importante ser cauteloso con este valor, ya que una confianza del 90% no indica que los productos resulten complementarios. Alguien que compra agua puede comprar un snack con una confianza del 80% por ejemplo, pero pueden mostrar un lift de 1.05, siendo una compra meramente casual. Se indica un valor mínimo del 50%
-- Lift: métrica estrella. Mide la fuerza de asociación entre productos. Lo ideal es que este valor sea superior a 1, cuanto más grande sea, más fuerte es la asocación entre productos. Si el valor es igual a 1 los productos presentan independencia total entre ellos, la relación es aleatoria. Si el valor es inferior a 1, en vez de actuar como productos complementarios, actúan como productos sustitituvos.
+- Lift: métrica estrella. Mide la fuerza de asociación entre productos. Lo ideal es que este valor sea superior a 1, cuanto más grande sea, más fuerte es la asocación entre productos. Si el valor es igual a 1 los productos presentan independencia total entre ellos, la relación es aleatoria. Si el valor es inferior a 1, en vez de actuar como productos complementarios, actúan como productos sustitituvos. Se aplica un valor mínimo de 2.
+
+La necesidad de aplicar reglas no solo es una decisión de negocio, también es necesario para poder filtrar ya que el modelo posiblemente genere un elevado número de reglas que resulte poco manejable. Al reducir el número de reglas mediante los filtros, se puede generar un grafo dinámico que muestra de una forma más amigable el comportamiento de los productos. 
+
+
+![grafo co-compra apriori](images/grafo_apriori.png)
+
+Es posible interactuar con el grafo en el siguiente enlace: https://ivanfondo.github.io/Portafolio-Data-Science-Python/SistemaRecomendacionHibrido/dashboard/grafo_cocompra_v2.html
+
+Los resultados del algoritmo permiten detectar 8 clusters.
+
+- Grupo 1: perfil fiesta/apertivos
+- Grupo 2: perfil cocina/frescos
+- Grupo 3: perfil bebé
+- Grupo 4: perfil hogar/droguería
+- Grupo 5: perfil mascotas
+- Grupo 6: perfil desayuno
+- Grupo 7: perfil café
+- Grupo 8: perfil pasta
+
+El resultado matemático devuelve 8 tipo de perfiles pero es importante tener en cuenta que esta parte se desarrolla con un enfoque de inteligencia de negocio, lo que nos lleva al siguiente punto. Si se observa el grupo 7 y 8, nos podemos dar cuenta de que son dos grupos que se pueden fusionar con el grupo 2 y grupo 6. La decisión final sobre el número de grupos que vamos a identificar reside en la persona que toma las decisiones de negocio. 
+
+La identificación de grupos ayuda en gran medida a orientar las decisiones y el conocimiento humano es un criterio muy importante a tener en cuenta para dar un mayor contexto a los resultados.
+
+### DASHBOARD MONITORIZACIÓN
+Finalmente se construye un dashboard para monitorear el grafo y el comportamiento de las métricas. Para este ejercicio el dashboard se desplieuga en Streamlit y cuenta con dos pestañas, cada una de ellas enfocada al grafo y otra a la monitorización de los resultados en los modelos.
+
+En este caso, todos los valores se encuentran estáticos (se introducen a mano). Lo correcto es generar archivos CSV que vayan almacenando el histórico para poder hacer comparaciones y ser capaz de detectar cuando se produce data drift. 
+
+![captura dashboard](images/dashboard.png)
+
+Se puede interactuar con el dashboard desde este enlace: https://monitorizacionsistemarecomendacion.streamlit.app/
+
+### PROBLEMAS DEL EJERCICIO
+Como ya se ha mencionado, se trabaja con datos estáticos, por tanto solo hay un entrenamiento. Para llevar esto a un entorno real hay que crear varios scripts que se encargan de encapsular los modelos y transformar los datos por un lado. A mayores es necesario crear un script para entrenar los modelos. Como el entrenamiento es un proceso muy costoso, se repite cada cierto período. Al trabajando con una superficie comercial, el entrenamiento podría ser una vez al mes. Otro script a crear es el de inferencia, que se encarga de hacer las recomendaciones. Este script recibirá los parámetros del modelo entrenado de forma periódica y se consumirá cada vez que se quieran hacer recomendaciones a los clientes.
+
+El pipeline de trabajo quedaría de la siguiente forma:
+```
+ pipeline/
+├── config/
+│   └── params.json          # Hiperparámetros del modelo (editable sin tocar código)
+├── src/
+│   ├── data.py              # Carga de datos y split temporal
+│   ├── models.py            # Modelos: ModeloPopularidad y ModeloALS
+│   └── recommender.py       # Cascada híbrida + evaluación
+├── models/                  # Modelos entrenados + histórico de métricas (generado)
+├── output/                  # CSV de recomendaciones (generado)
+├── train.py                 # SCRIPT 1: entrena y guarda los modelos
+└── predict.py               # SCRIPT 2: genera recomendaciones y exporta CSV
+```
