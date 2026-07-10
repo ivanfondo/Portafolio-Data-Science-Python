@@ -2,3 +2,6 @@
 *.pkl
 __pycache__/
 .ipynb_checkpoints/
+
+# Excepciones: modelos entrenados necesarios para las apps
+!PrediccionChurnTelco/data/modelo_churn_final.pkl
