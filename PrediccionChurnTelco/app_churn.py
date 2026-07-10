@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import shap
 import matplotlib.pyplot as plt
+import numpy as np
 
 # 1. Configuración de página
 st.set_page_config(page_title="Churn Dashboard", layout="wide")
@@ -41,15 +42,38 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# --- Función auxiliar: asigna acción según probabilidad y cortes ---
+def asignar_accion(prob, umbral, alpha):
+    if prob < umbral:
+        return "No actuar"
+    elif prob < alpha:
+        return "Email"
+    else:
+        return "Llamada"
+
+COLOR_ACCION = {
+    "No actuar": "#95A5A6",
+    "Email":     "#F39C12",
+    "Llamada":   "#E74C3C"
+}
+
+# --- Inicializacion del estado de sesion (registro de contactados y notas) ---
+# 'contactados' es un conjunto de IDs ya trabajados.
+# 'notas' es un diccionario {id_cliente: texto de impresiones}.
+if 'contactados' not in st.session_state:
+    st.session_state.contactados = set()
+if 'notas' not in st.session_state:
+    st.session_state.notas = {}
+
 # 2. Carga de Assets
 @st.cache_resource
 def load_assets():
     try:
-        assets = joblib.load('PrediccionChurnTelco/modelo_churn_final.pkl')
+        assets = joblib.load('modelo_churn_final.pkl')
         model = assets['model']
-        features = assets['features'] 
-        df_modelo = pd.read_csv('PrediccionChurnTelco/datos_test_dashboard.csv', index_col=0) 
-        df_visual = pd.read_csv('PrediccionChurnTelco/TelcoChurn.csv', index_col=0) 
+        features = assets['features']
+        df_modelo = pd.read_csv('datos_test_dashboard.csv', index_col=0)
+        df_visual = pd.read_csv('TelcoChurn.csv', index_col=0)
         explainer = shap.TreeExplainer(model)
         return model, df_modelo, df_visual, explainer, features
     except Exception as e:
@@ -62,54 +86,93 @@ if model is not None:
     # 3. Sidebar - Panel de Control
     st.sidebar.title("🔍 Panel de Control")
 
-    # Calculamos probabilidades base
+    # Probabilidades base
     probabilidades = model.predict_proba(df[features])[:, 1]
     df['Probabilidad'] = probabilidades
 
-    # --- NUEVA SECCIÓN: UMBRAL Y CONTEO ---
-    st.sidebar.subheader("⚙️ Configuración de Riesgo")
-    umbral = st.sidebar.slider("Umbral de criticidad (%)", 0, 100, 50) / 100
+    # --- CONFIGURACIÓN DE ESTRATEGIA (dos cortes) ---
+    st.sidebar.subheader("⚙️ Configuración de Estrategia")
+    umbral = st.sidebar.slider(
+        "Umbral de actuación (%)", 0, 100, 50,
+        help="Por debajo de este valor no se realiza ninguna acción."
+    ) / 100
+    alpha = st.sidebar.slider(
+        "Frontera Email / Llamada (%)", 0, 100, 68,
+        help="Entre el umbral y este valor se envía Email; por encima, Llamada."
+    ) / 100
+    if alpha < umbral:
+        alpha = umbral
 
-    n_alto = (df['Probabilidad'] >= umbral).sum()
-    n_bajo = (df['Probabilidad'] < umbral).sum()
+    df['Accion'] = df['Probabilidad'].apply(lambda p: asignar_accion(p, umbral, alpha))
 
-    col_n1, col_n2 = st.sidebar.columns(2)
-    col_n1.metric("Riesgo Alto", n_alto)
-    col_n2.metric("Riesgo Bajo", n_bajo)
+    # --- RESUMEN DE ACCIONES EN TIEMPO REAL ---
+    st.sidebar.divider()
+    st.sidebar.subheader("📋 Acciones recomendadas")
+    conteo = df['Accion'].value_counts()
+    col_a, col_b, col_c = st.sidebar.columns(3)
+    col_a.metric("📵 Nada", int(conteo.get("No actuar", 0)))
+    col_b.metric("✉️ Email", int(conteo.get("Email", 0)))
+    col_c.metric("📞 Llamada", int(conteo.get("Llamada", 0)))
     st.sidebar.divider()
 
-    # Filtro de visualización
-    tipo_cliente = st.sidebar.radio("Filtrar lista por:", ["Todos", f"Alto Riesgo (>{umbral:.0%})", f"Bajo Riesgo (<{umbral:.0%})"])
+    # --- GESTION DE CONTACTOS: PENDIENTES vs CONTACTADOS ---
+    st.sidebar.subheader("📇 Gestión de Contactos")
 
-    if "Alto Riesgo" in tipo_cliente:
-        df_mostrar = df[df['Probabilidad'] >= umbral]
-    elif "Bajo Riesgo" in tipo_cliente:
-        df_mostrar = df[df['Probabilidad'] < umbral]
+    # Progreso
+    total_clientes = len(df)
+    n_contactados = len(st.session_state.contactados)
+    st.sidebar.progress(n_contactados / total_clientes if total_clientes else 0,
+                        text=f"{n_contactados} / {total_clientes} contactados")
+
+    # Modo de trabajo: pendientes o consultar contactados
+    modo = st.sidebar.radio("Ver:", ["Pendientes", "Contactados"])
+
+    if modo == "Pendientes":
+        # Lista de no contactados (opcional: filtrar por accion)
+        filtro = st.sidebar.selectbox(
+            "Filtrar por acción:",
+            ["Todas", "Llamada", "Email", "No actuar"]
+        )
+        df_pendientes = df[~df.index.isin(st.session_state.contactados)]
+        if filtro != "Todas":
+            df_pendientes = df_pendientes[df_pendientes['Accion'] == filtro]
+
+        # Ordenamos por probabilidad descendente (mas urgentes primero)
+        df_pendientes = df_pendientes.sort_values('Probabilidad', ascending=False)
+
+        if len(df_pendientes) == 0:
+            st.sidebar.success("✅ No quedan clientes pendientes con este filtro.")
+            id_cliente = None
+        else:
+            id_cliente = st.sidebar.selectbox(
+                "Cliente a contactar:", df_pendientes.index
+            )
     else:
-        df_mostrar = df
-
-    id_cliente = st.sidebar.selectbox("Selecciona ID de Cliente:", df_mostrar.index)
-
-    # --- TOP 10 EN SIDEBAR ---
-    st.sidebar.divider()
-    st.sidebar.subheader("🔝 Top 10 Riesgo Crítico")
-    top_10 = df.sort_values(by='Probabilidad', ascending=False).head(10)
-    top_10_display = top_10[['Probabilidad']].copy()
-    top_10_display['Probabilidad'] = top_10_display['Probabilidad'].map('{:.1%}'.format)
-    st.sidebar.table(top_10_display)
+        # Modo consulta de contactados
+        contactados_lista = sorted(st.session_state.contactados)
+        if len(contactados_lista) == 0:
+            st.sidebar.info("Aún no hay clientes contactados.")
+            id_cliente = None
+        else:
+            id_cliente = st.sidebar.selectbox(
+                "Cliente contactado (consulta):", contactados_lista
+            )
 
     # 4. Visualización Principal
     if id_cliente:
+        ya_contactado = id_cliente in st.session_state.contactados
+
         st.markdown("<div style='margin-top:-50px;'></div>", unsafe_allow_html=True)
-        st.markdown(f'<div class="main-header"><h2 style="margin:0; color:white;">Análisis Detallado Cliente: {id_cliente}</h2></div>', unsafe_allow_html=True)
+        estado_txt = " ✅ (Contactado)" if ya_contactado else ""
+        st.markdown(f'<div class="main-header"><h2 style="margin:0; color:white;">Análisis Detallado Cliente: {id_cliente}{estado_txt}</h2></div>', unsafe_allow_html=True)
 
         datos_cliente = df.loc[[id_cliente]]
         prob = datos_cliente['Probabilidad'].values[0]
+        accion_cliente = datos_cliente['Accion'].values[0]
 
-        # KPIs
-        c1, c2, c3, c4 = st.columns(4)
+        # KPIs (5 tarjetas)
+        c1, c2, c3, c4, c5 = st.columns(5)
         with c1:
-            # Color dinámico basado en el umbral seleccionado
             color_resaltado = "#FF4B4B" if prob >= umbral else "#28A745"
             st.markdown(f'<div class="kpi-card" style="border-left-color: {color_resaltado};"><div class="kpi-label">Riesgo fuga</div><div class="kpi-value">{prob:.1%}</div></div>', unsafe_allow_html=True)
         with c2:
@@ -118,47 +181,96 @@ if model is not None:
             st.markdown(f'<div class="kpi-card" style="border-left-color: #F39C12;"><div class="kpi-label">Antigüedad (meses) </div><div class="kpi-value">{int(datos_cliente["tenure"].values[0])}</div></div>', unsafe_allow_html=True)
         with c4:
             st.markdown(f'<div class="kpi-card" style="border-left-color: #691769;"><div class="kpi-label">Gasto Total</div><div class="kpi-value">{datos_cliente["TotalCharges"].values[0]:.2f} €</div></div>', unsafe_allow_html=True)
+        with c5:
+            color_accion = COLOR_ACCION.get(accion_cliente, "#007BFF")
+            st.markdown(f'<div class="kpi-card" style="border-left-color: {color_accion};"><div class="kpi-label">Acción recomendada</div><div class="kpi-value" style="color:{color_accion};">{accion_cliente}</div></div>', unsafe_allow_html=True)
 
         st.divider()
 
         # 5. ZONA MIXTA
-        col_grafico, col_perfil = st.columns([2, 1]) 
+        col_grafico, col_perfil = st.columns([2, 1])
 
         with col_grafico:
             st.subheader("⛓️ Factores de Riesgo")
             plt.switch_backend('Agg')
-            fig = plt.figure(figsize=(12, 3), dpi=120)
+            plt.close('all')
 
+            # Calculamos los valores SHAP para el cliente
             shap_values = explainer.shap_values(datos_cliente[features])
             valores_reales = datos_cliente[features].iloc[0]
 
-            shap.force_plot(
-                explainer.expected_value, 
-                shap_values[0], 
-                features=valores_reales,
-                feature_names=features,
-                matplotlib=True, 
-                show=False,
-                contribution_threshold=0.05,
-                text_rotation=45
+            # Construimos un objeto Explanation para el waterfall plot
+            explanation = shap.Explanation(
+                values=shap_values[0],
+                base_values=explainer.expected_value,
+                data=valores_reales.values,
+                feature_names=features
             )
-            plt.subplots_adjust(top=1)
-            st.pyplot(plt.gcf(), use_container_width=True, clear_figure=True)
-            plt.close(fig)
 
-            st.markdown('<div style="background-color: #f0f2f6; padding: 10px; border-radius: 5px; font-size: 13px;">ℹ️ <b>Interpretación:</b> Las barras <span style="color:red">rojas</span> aumentan el riesgo, las <span style="color:blue">azules</span> lo disminuyen.</div>', unsafe_allow_html=True)
+            fig_shap, ax = plt.subplots(figsize=(10, 5))
+            shap.plots.waterfall(explanation, max_display=10, show=False)
+            fig_shap = plt.gcf()
+            plt.tight_layout()
+            st.pyplot(fig_shap, use_container_width=True, clear_figure=True)
+            plt.close('all')
+
+            st.markdown('<div style="background-color: #f0f2f6; padding: 10px; border-radius: 5px; font-size: 13px;">ℹ️ <b>Interpretación:</b> Las barras <span style="color:red">rojas</span> aumentan el riesgo de fuga, las <span style="color:blue">azules</span> lo disminuyen. El valor E[f(x)] es el riesgo medio; f(x) es el riesgo final de este cliente.</div>', unsafe_allow_html=True)
 
         with col_perfil:
             st.subheader("👤 Perfil del Cliente")
-            columnas_no_interes = ['Churn', 'Dependents', 'Partner', 'gender']
+            columnas_no_interes = ['Churn', 'Dependents', 'Partner', 'gender', 'Probabilidad', 'Accion']
             cols_a_mostrar = [c for c in df_perfil.columns if c not in columnas_no_interes]
-
             perfil_completo = df_perfil.loc[[id_cliente], cols_a_mostrar].T
             perfil_completo.columns = ['Valor']
-
             perfil_completo['Valor'] = perfil_completo['Valor'].apply(
                 lambda x: "Sí" if x == 1 else ("No" if x == 0 else x)
             )
             st.dataframe(perfil_completo, use_container_width=True, height=450)
+
+        st.divider()
+
+        # 6. GESTION DEL CONTACTO: notas + marcar como contactado
+        st.subheader("📝 Registro de contacto")
+
+        # Cada cliente tiene su propio campo de notas mediante una key unica.
+        # Al cambiar de cliente, Streamlit muestra automaticamente el widget
+        # correspondiente: vacio si es nuevo, o con su nota si ya existe.
+        key_nota = f"nota_{id_cliente}"
+
+        # Inicializamos el contenido del widget la primera vez que se ve este
+        # cliente, tomando la nota ya guardada (si la hubiera).
+        if key_nota not in st.session_state:
+            st.session_state[key_nota] = st.session_state.notas.get(id_cliente, "")
+
+        st.text_area(
+            "Impresiones del contacto (para próximas aproximaciones):",
+            key=key_nota,
+            placeholder="Ej.: Cliente molesto con la velocidad de la fibra. Ofrecer mejora de tarifa en próxima llamada.",
+            height=100
+        )
+
+        col_btn1, col_btn2 = st.columns([1, 3])
+        with col_btn1:
+            if not ya_contactado:
+                if st.button("✅ Marcar como contactado", type="primary"):
+                    # Guardamos la nota actual y marcamos como contactado
+                    texto = st.session_state[key_nota].strip()
+                    if texto:
+                        st.session_state.notas[id_cliente] = texto
+                    st.session_state.contactados.add(id_cliente)
+                    st.rerun()
+            else:
+                if st.button("↩️ Reabrir (marcar como pendiente)"):
+                    st.session_state.contactados.discard(id_cliente)
+                    st.rerun()
+        with col_btn2:
+            if st.button("💾 Guardar notas"):
+                texto = st.session_state[key_nota].strip()
+                if texto:
+                    st.session_state.notas[id_cliente] = texto
+                    st.success("Notas guardadas.")
+                else:
+                    st.info("No hay texto que guardar.")
+
 else:
     st.error("No se pudo inicializar la aplicación. Verifica los archivos.")
