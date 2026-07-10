@@ -16,12 +16,12 @@ Tal como se ha mencionado ya, el problema es la fuga de clientes, aunque los dat
 Para abordar este problema se ha realizado en primer lugar un análisis exploratorio para entender los datos, antes de empezar a construir cualquier algoritmo que ayude a predecir si un cliente se va, es necesario saber como se comportan los datos y como es su forma. Cómo los datos se encuentran en parte en formato STR, hay que codificarlos, esta codificación llevará dará lugar a un aumento de la dimensionalidad, es decir, en número de variables va aumentar. Esto se debe a que algunas de las variables que se encuentran en el dataset tienen más de 2 opciones por tanto toca aplicar un OneHotEncoding.
 
 Una vez codificados los datos y tras un primer visual empleando la librería ydata_profiling, se construye una matriz de correlación entre las variables binarias para ver como se comportan estas con la variable objetivo "Churn". 
-![alt text](image-1.png)
+![matriz correlación](images/matriz_correlacion.png)
 
 De esta matriz se obtiene información clave como que el servicio de fibra óptica, un tipo de contrato mes a mes y el uso del cheque electrónico como método de pago tienen una fuerte relación con la fuga del cliente, siendo el punto contrario tener un contrato a dos años o una elevada antigüedad.
 
 Dado que la matriz solo muestra la correlación entre variables binarias, para enriquecer el contenido del EDA se construyen unos diagramas de cajas con las variables continuas.
-![alt text](image-2.png)
+![diagrama de cajas](images/boxplot.png)
 
 De este gráfico se obtiene que hay un segmento de clientes con unos cargos totales elevados que se están fugando. Cómo los clientes tienen cargos totales elevados se presupone que también tienen una elevada antigüedad. Filtrando los datos se obtiene alrededor de 157 clientes que representan esos outliers. De estos, 151 tienen contratado el servicio de fibra óptica. Esto lleva a la conclusión de que hay que tener un ojo puesto en el servicio de fibra óptica.
 
@@ -40,7 +40,7 @@ Como se ha mencionado, el objetivo no solo es saber quien se fuga, también hay 
 
 ### Conclusiones
 
-![alt text](image-4.png)
+![gráfico SHAP](images/grafico_shap.png)
 
 El gráfico que devuelve SHAP muestra que factores influyen en la fuga de más a menos importante. Tal como se aprecia en la matriz de correlación, el contrato a dos años es la variable más relevante para evitar la fuga de un cliente seguido de la antigüedad del cliente.
 
@@ -55,10 +55,64 @@ Observando las 3 principales variables binarias que más probabilidad tienen en 
 
 Para no quedar solo en el apartado técnico, se ha creado un dashboard con Streamlit en donde se facilita el consumo para el usuario final. En el siguiente enlace se puede consultar el dashboard generado en formato web.
 https://telcochurnappif.streamlit.app/
-### NOTA
-Para ejecutar el notebook, se recomienda emplear un entorno virtual:
-1. Crear entorno: `python -m venv venv`
-2. Activar entorno: 
-   - Windows: `.\venv\Scripts\activate`
-   - Mac/Linux: `source venv/bin/activate`
-3. Instalar librerías: `pip install -r requirements.txt`
+
+### EJECUTAR NOTEBOOKS
+
+## INSTALACIÓN Y EJECUCIÓN EN LOCAL
+
+Para ejecutar el proyecto en local, sigue estos pasos.
+
+1. Clonar el repositorio
+
+```bash
+git clone https://github.com/ivanfondo/Portafolio-Data-Science-Python.git
+cd Portafolio-Data-Science-Python/SistemaRecomendacionHibrido
+```
+
+ 2. Crear y activar un entorno virtual
+
+Se recomienda usar un entorno virtual para aislar las dependencias del proyecto.
+
+**En Windows (PowerShell):**
+```bash
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+**En Windows (CMD):**
+```bash
+python -m venv .venv
+.venv\Scripts\activate.bat
+```
+
+**En macOS / Linux:**
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Cuando el entorno esté activado, verás `(.venv)` al principio de la línea de comandos.
+
+ 3. Instalar las dependencias
+
+```bash
+pip install -r requirements_base.txt
+```
+
+4. Ejecutar los notebooks
+
+Los notebooks están numerados según el orden de lectura recomendado:
+
+1. `1_EDARecomendacion.ipynb` — análisis exploratorio de los datos.
+2. `2_SistemaHibridoLimpio.ipynb` — desarrollo del sistema de recomendación (popularidad, ALS y cascada).
+3. `3_Apriori.ipynb` — análisis de cesta de la compra (inteligencia de negocio).
+
+Puedes abrirlos con Jupyter, VS Code o cualquier editor compatible con notebooks.
+
+ 5. Ejecutar el dashboard en local (opcional)
+
+```bash
+streamlit run app_churn.py
+```
+
+El dashboard se abrirá automáticamente en el navegador.
