@@ -170,7 +170,7 @@ st.markdown("""
     .stTabs [data-baseweb="tab"] {
         height: 50px;
         background-color: #ffffff;
-        border-radius: 10px;
+        border-radius: 18px;
         padding: 0 28px;
         font-weight: 500;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
