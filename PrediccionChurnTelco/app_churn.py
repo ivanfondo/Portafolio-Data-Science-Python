@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import joblib
 import shap
-import matplotlib.pyplot as plt
 import numpy as np
+import altair as alt
 
 from pathlib import Path
 
@@ -83,6 +83,7 @@ def load_assets():
     except Exception as e:
         st.error(f"Error cargando archivos: {e}")
         return None, None, None, None, None
+    
 model, df, df_perfil, explainer, features = load_assets()
 
 if model is not None:
@@ -195,29 +196,44 @@ if model is not None:
 
         with col_grafico:
             st.subheader("⛓️ Factores de Riesgo")
-            plt.switch_backend('Agg')
-            plt.close('all')
 
-            # Calculamos los valores SHAP para el cliente
+            # Calculamos los valores SHAP del cliente (solo los numeros, sin matplotlib)
             shap_values = explainer.shap_values(datos_cliente[features])
             valores_reales = datos_cliente[features].iloc[0]
 
-            # Construimos un objeto Explanation para el waterfall plot
-            explanation = shap.Explanation(
-                values=shap_values[0],
-                base_values=explainer.expected_value,
-                data=valores_reales.values,
-                feature_names=features
+            # DataFrame con la contribucion de cada variable
+            df_shap = pd.DataFrame({
+                'Factor': features,
+                'Impacto': shap_values[0],
+                'Valor': valores_reales.values
+            })
+            df_shap['abs_impacto'] = df_shap['Impacto'].abs()
+            df_shap = df_shap.sort_values('abs_impacto', ascending=False)
+            df_shap['Etiqueta'] = df_shap.apply(
+                lambda r: f"{r['Factor']} ({r['Valor']})", axis=1
+            )
+            df_shap['Sentido'] = df_shap['Impacto'].apply(
+                lambda x: 'Aumenta el riesgo' if x > 0 else 'Reduce el riesgo'
             )
 
-            fig_shap, ax = plt.subplots(figsize=(10, 5))
-            shap.plots.waterfall(explanation, max_display=10, show=False)
-            fig_shap = plt.gcf()
-            plt.tight_layout()
-            st.pyplot(fig_shap, use_container_width=True, clear_figure=True)
-            plt.close('all')
+            # Grafico de barras horizontal con Altair (nativo, sin matplotlib)
+            chart = alt.Chart(df_shap).mark_bar().encode(
+                x=alt.X('Impacto:Q', title='Impacto en el riesgo de fuga'),
+                y=alt.Y('Etiqueta:N', sort='-x', title=None),
+                color=alt.Color(
+                    'Sentido:N',
+                    scale=alt.Scale(
+                        domain=['Aumenta el riesgo', 'Reduce el riesgo'],
+                        range=['#E74C3C', '#3498DB']
+                    ),
+                    legend=alt.Legend(title=None, orient='top')
+                ),
+                tooltip=['Factor', 'Valor', 'Impacto']
+            ).properties(height=350)
 
-            st.markdown('<div style="background-color: #f0f2f6; padding: 10px; border-radius: 5px; font-size: 13px;">ℹ️ <b>Interpretación:</b> Las barras <span style="color:red">rojas</span> aumentan el riesgo de fuga, las <span style="color:blue">azules</span> lo disminuyen. El valor E[f(x)] es el riesgo medio; f(x) es el riesgo final de este cliente.</div>', unsafe_allow_html=True)
+            st.altair_chart(chart, width='stretch')
+
+            st.markdown('<div style="background-color: #f0f2f6; padding: 10px; border-radius: 5px; font-size: 13px;">ℹ️ <b>Interpretación:</b> Las barras <span style="color:#E74C3C">rojas</span> aumentan el riesgo de fuga, las <span style="color:#3498DB">azules</span> lo disminuyen. La longitud indica la magnitud del efecto.</div>', unsafe_allow_html=True)
 
         with col_perfil:
             st.subheader("👤 Perfil del Cliente")
@@ -231,7 +247,7 @@ if model is not None:
             # Forzamos toda la columna a texto para evitar tipos mezclados
             # (str + float) que rompen la serializacion a Arrow de Streamlit.
             perfil_completo['Valor'] = perfil_completo['Valor'].astype(str)
-            st.dataframe(perfil_completo, use_container_width=True, height=450)
+            st.dataframe(perfil_completo, width='stretch', height=450)
 
         st.divider()
 
