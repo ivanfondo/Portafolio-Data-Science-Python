@@ -5,6 +5,11 @@ import shap
 import matplotlib.pyplot as plt
 import numpy as np
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+
 # 1. Configuración de página
 st.set_page_config(page_title="Churn Dashboard", layout="wide")
 
@@ -65,21 +70,19 @@ if 'contactados' not in st.session_state:
 if 'notas' not in st.session_state:
     st.session_state.notas = {}
 
-# 2. Carga de Assets
 @st.cache_resource
 def load_assets():
     try:
-        assets = joblib.load('modelo_churn_final.pkl')
+        assets = joblib.load(DATA_DIR / "modelo_churn_final.pkl")
         model = assets['model']
         features = assets['features']
-        df_modelo = pd.read_csv('datos_test_dashboard.csv', index_col=0)
-        df_visual = pd.read_csv('TelcoChurn.csv', index_col=0)
+        df_modelo = pd.read_csv(DATA_DIR / "datos_test_dashboard.csv", index_col=0)
+        df_visual = pd.read_csv(DATA_DIR / "TelcoChurn.csv", index_col=0)
         explainer = shap.TreeExplainer(model)
         return model, df_modelo, df_visual, explainer, features
     except Exception as e:
         st.error(f"Error cargando archivos: {e}")
         return None, None, None, None, None
-
 model, df, df_perfil, explainer, features = load_assets()
 
 if model is not None:
