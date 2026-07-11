@@ -5,11 +5,6 @@ import shap
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-
 # 1. Configuración de página
 st.set_page_config(page_title="Churn Dashboard", layout="wide")
 
@@ -71,16 +66,14 @@ if 'notas' not in st.session_state:
     st.session_state.notas = {}
 
 # 2. Carga de Assets
-
-
 @st.cache_resource
 def load_assets():
     try:
-        assets = joblib.load(DATA_DIR / "modelo_churn_final.pkl")
+        assets = joblib.load('modelo_churn_final.pkl')
         model = assets['model']
         features = assets['features']
-        df_modelo = pd.read_csv(DATA_DIR / "datos_test_dashboard.csv", index_col=0)
-        df_visual = pd.read_csv(DATA_DIR / "TelcoChurn.csv", index_col=0)
+        df_modelo = pd.read_csv('datos_test_dashboard.csv', index_col=0)
+        df_visual = pd.read_csv('TelcoChurn.csv', index_col=0)
         explainer = shap.TreeExplainer(model)
         return model, df_modelo, df_visual, explainer, features
     except Exception as e:
@@ -232,6 +225,9 @@ if model is not None:
             perfil_completo['Valor'] = perfil_completo['Valor'].apply(
                 lambda x: "Sí" if x == 1 else ("No" if x == 0 else x)
             )
+            # Forzamos toda la columna a texto para evitar tipos mezclados
+            # (str + float) que rompen la serializacion a Arrow de Streamlit.
+            perfil_completo['Valor'] = perfil_completo['Valor'].astype(str)
             st.dataframe(perfil_completo, use_container_width=True, height=450)
 
         st.divider()
