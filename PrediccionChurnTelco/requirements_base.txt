@@ -1,19 +1,22 @@
 # Análisis y ML
-numpy
-pandas
-scikit-learn
-xgboost
-scipy
-statsmodels
-shap
-optuna
+numpy == 2.3.5
+pandas == 2.3.3
+scikit-learn == 1.9.0
+xgboost == 3.2.0
+statsmodels == 0.14.6
+shap == 0.51.0
+optuna == 4.9.0
 
 # Visualización
-matplotlib
-seaborn
-ydata-profiling
-streamlit
+matplotlib == 3.10.0
+seaborn == 0.13.2
+ydata-profiling == 4.18.4
+
 # Entorno de trabajo
-ipykernel
-ipywidgets
-tqdm
+ipykernel == 7.3.0
+ipywidgets == 8.1.8
+tqdm == 4.68.4
+joblib == 1.5.3
+
+
+
