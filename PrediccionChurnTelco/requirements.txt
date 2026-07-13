@@ -1,19 +1,7 @@
-# Análisis y ML
-numpy
-pandas
-scikit-learn
-xgboost
-scipy
-statsmodels
-shap
-optuna
-
-# Visualización
-matplotlib
-seaborn
-ydata-profiling
+## Librerías para dashboard. NO se fija versión, se encarga STREAMLIT de ello.
 streamlit
-# Entorno de trabajo
-ipykernel
-ipywidgets
-tqdm
+pandas
+joblib
+shap
+numpy
+altair
