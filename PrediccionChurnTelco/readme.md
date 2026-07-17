@@ -1,62 +1,123 @@
-# Predicción Churn en Telecomunicaciones: ¿Por qué se van los clientes?
+## 🛠️ Stack tecnológico
 
-Tras haber realizado el análisis y modelado para conseguir construir un modelo que permita detectar por que se van los clientes hay preguntas que responder. Construir un modelo y ser capaz de detectar un cliente que se va a ir está bien, pero ese dato por si solo no aporta ningún tipo de valor. Más allá de saber quien se va o quien se queda, hay que saber los motivos por el cuál un cliente decide irse.
+![Python](https://img.shields.io/badge/Python-3.11.9-3776AB?logo=python&logoColor=white)
 
-Para abordar el problema vamos a hacernos 3 preguntas:
-- ¿Cuál es el problema?
-- ¿Que se ha realizado?
-- ¿Cuál es el objetivo?
+**Análisis y ML**
+
+![NumPy](https://img.shields.io/badge/NumPy-2.3.5-013243?logo=numpy&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-2.3.3-150458?logo=pandas&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.9.0-F7931E?logo=scikitlearn&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-3.2.0-337AB7)
+![statsmodels](https://img.shields.io/badge/statsmodels-0.14.6-4051B5)
+![SHAP](https://img.shields.io/badge/SHAP-0.51.0-6E4C9E)
+![Optuna](https://img.shields.io/badge/Optuna-4.9.0-3B5998)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10.0-11557C)
+![Seaborn](https://img.shields.io/badge/Seaborn-0.13.2-4C72B0)
+![ydata-profiling](https://img.shields.io/badge/ydata--profiling-4.18.4-E45756)
+![joblib](https://img.shields.io/badge/joblib-1.5.3-4B8BBE)
+
+# Predicción de fuga de clientes en Telecomunicaciones: de reaccionar a anticiparse
+
+Detectar que un cliente se va a marchar está bien. Pero ese dato, por sí solo, no vale nada. Lo que aporta valor es saber **a quién contactar, qué hacer con cada uno, por qué se está planteando irse y cuánto dinero deja eso sobre la mesa**.
+
+Este proyecto no termina en un modelo con buenas métricas: termina en una herramienta que un equipo comercial puede abrir un lunes por la mañana y usar para trabajar.
+
+## Contenido
+
+Para abordar el problema respondemos a cuatro preguntas:
+
+1. [¿Cuál es el problema?](#cuál-es-el-problema)
+2. [¿Qué se ha hecho?](#qué-se-ha-hecho)
+3. [¿Por qué se va cada cliente?](#por-qué-se-va-cada-cliente)
+4. [¿Cuánto vale esto en euros?](#cuánto-vale-esto-en-euros)
+5. [¿Cómo se usa en el día a día?](#cómo-se-usa-en-el-día-a-día)
+
+Y para cerrar:
+
+- [En resumen](#en-resumen)
+- [Stack tecnológico](#-stack-tecnológico)
+- [Instalación y ejecución en local](#instalación-y-ejecución-en-local)
 
 ### ¿Cuál es el problema?
 
-Tal como se ha mencionado ya, el problema es la fuga de clientes, aunque los datos en esta empresa muestran que sólo alrededor del 30% de los clientes se fugan, lo ideal es conseguir reducir este porcentaje. Si bien es cierto que se pueden conseguir nuevos clientes, en un sector como las telecomunicaciones es más sencillo buscar retener clientes que conseguir nuevos clientes. 
+La empresa pierde alrededor de un **26,5% de sus clientes**. El problema no es solo esa cifra, sino *cuándo* se detecta: hoy la compañía se entera de que un cliente se va cuando ya ha llamado para darse de baja. En ese momento la decisión ya está tomada y el margen de maniobra es mínimo.
 
-### ¿Que se ha realizado?
+Y retener importa. Captar un cliente nuevo puede costar hasta **25 veces más** que conservar uno existente, y una mejora de apenas 5 puntos en la tasa de retención puede elevar los beneficios entre un 25% y un 100%.
 
-Para abordar este problema se ha realizado en primer lugar un análisis exploratorio para entender los datos, antes de empezar a construir cualquier algoritmo que ayude a predecir si un cliente se va, es necesario saber como se comportan los datos y como es su forma. Cómo los datos se encuentran en parte en formato STR, hay que codificarlos, esta codificación llevará dará lugar a un aumento de la dimensionalidad, es decir, en número de variables va aumentar. Esto se debe a que algunas de las variables que se encuentran en el dataset tienen más de 2 opciones por tanto toca aplicar un OneHotEncoding.
+El objetivo, por tanto, no es solo reducir la fuga: es **cambiar el momento en el que la empresa se entera**. Pasar de reaccionar a anticiparse.
 
-Una vez codificados los datos y tras un primer visual empleando la librería ydata_profiling, se construye una matriz de correlación entre las variables binarias para ver como se comportan estas con la variable objetivo "Churn". 
+### ¿Qué se ha hecho?
+
+Se ha construido un modelo capaz de estimar, para cada cliente de la cartera, su probabilidad de abandono **antes de que se produzca**. El modelo detecta **8 de cada 10 clientes que realmente se van**, dando margen para actuar.
+
+Pero antes de predecir hay que entender. El análisis de los datos ya deja señales claras:
+
 ![matriz correlación](images/matriz_correlacion.png)
 
-De esta matriz se obtiene información clave como que el servicio de fibra óptica, un tipo de contrato mes a mes y el uso del cheque electrónico como método de pago tienen una fuerte relación con la fuga del cliente, siendo el punto contrario tener un contrato a dos años o una elevada antigüedad.
+Tres factores concentran el riesgo: el **servicio de fibra óptica**, el **contrato mes a mes** y el **pago mediante cheque electrónico**. En el lado opuesto, el contrato a dos años y la antigüedad son los mejores escudos contra la fuga.
 
-Dado que la matriz solo muestra la correlación entre variables binarias, para enriquecer el contenido del EDA se construyen unos diagramas de cajas con las variables continuas.
 ![diagrama de cajas](images/boxplot.png)
 
-De este gráfico se obtiene que hay un segmento de clientes con unos cargos totales elevados que se están fugando. Cómo los clientes tienen cargos totales elevados se presupone que también tienen una elevada antigüedad. Filtrando los datos se obtiene alrededor de 157 clientes que representan esos outliers. De estos, 151 tienen contratado el servicio de fibra óptica. Esto lleva a la conclusión de que hay que tener un ojo puesto en el servicio de fibra óptica.
+Un hallazgo incómodo: existe un grupo de clientes de **alto valor y mucha antigüedad** que se está yendo. De los 157 clientes que forman ese perfil, **151 tienen fibra óptica**. No es un problema comercial: es un problema de producto que la dirección debería mirar de cerca.
 
-Tras el EDA se procede a separar los datos en un conjunto de entrenamiento y otro de test. Cómo el primer algorimto empleado, la regresión logística, necesita datos escalados, se procede a escalar las variables continuas.
+### ¿Por qué se va cada cliente?
 
-Una vez se encuentran separados y escalados, se construye el algoritmo. El primer algoritmo se emplea cómo modelo base y se emplean todas las variables, será el propio algoritmo el que decida que variables le resultan relevantes para el modeo y cuales no. 
-Despúes de perfeccionar el modelo se construyen las métricas, para las métricas se empleará la curva ROC AUC, que será la métrica estrella en estos modelos de predicción. Se pondrá especial atención en el recall(sensibilidad) y se mostrarán los resultados en una matriz de confusión.
-
-Este proceso se repitre varias veces ya que los algoritmos empleados son la regresión logística ya mencionada, el random forest y por último XGBoost.
-
-Una vez se ha determinado que modelo emplear, haciendo uso de la librería SHAP se muestra como y que variables afectan para saber si un cliente se fuga o se queda.
-
-### ¿Cuál es el objetivo?
-
-Como se ha mencionado, el objetivo no solo es saber quien se fuga, también hay que saber porque se fugan. La ya mencionada librería SHAP es nuestro gran aliado para esta situación. Poder saber los principales motivos que provocan la fuga de los clientes permite al equipo de marketing crear diferentes estrategias para abordar al cliente e intentar evitar la fuga.
-
-### Conclusiones
+Saber quién se va no basta. Un comercial que llama sin saber *por qué* está llamando a ciegas.
 
 ![gráfico SHAP](images/grafico_shap.png)
 
-El gráfico que devuelve SHAP muestra que factores influyen en la fuga de más a menos importante. Tal como se aprecia en la matriz de correlación, el contrato a dos años es la variable más relevante para evitar la fuga de un cliente seguido de la antigüedad del cliente.
+El modelo explica, **cliente a cliente**, qué factores concretos empujan su decisión. Eso convierte una llamada genérica en una conversación con argumentos. Traducido a probabilidades reales:
 
-Para obtener unos datos más claros, se construye una tabla de probabilidades en base a la variable Churn, de donde obtenemos:
-- La probabilidad de que un cliente se fuge si ha firmado un contrato a dos años es del 3%, es decir, sólo 3 de cada 100 clientes se van con esta modalidad de contrato.
-- Si el método de pago empleado es el cheque electrónico, las probabilidades de fuga son de un 45%. Este dato, muestra como este método de pago que consiste en rellenar los datos de forma manual cada 30 días en la web de la empresa crea una fuerte restricción.
-- Si el internet contratado es fibra óptica, las probabilidades de fuga son del 41%. Mejorar este servicio no recae en el equipo de marketing, esto es una medida que debe afrontar la directiva de la empresa.
-- Otro dato a destacar es como aquellos clientes que reciben factura electrónica tienen una probabilidad de fuga del 33%. 
+| Perfil del cliente | Probabilidad de fuga |
+|---|---|
+| Contrato a dos años | **3%** |
+| Factura electrónica | **33%** |
+| Internet por fibra óptica | **41%** |
+| Pago con cheque electrónico | **45%** |
 
-Observando las 3 principales variables binarias que más probabilidad tienen en la fuga se puede llegar a la conclusión de que este tipo de cliente podría pertenecer a una franja de cliente jóven. Este tipo de cliente tiene mayor facilidad a la hora de contratar servicios, principalmente online dado su soltura para defenderse con este formato. Esta soltura dará lugar a que busque siempre el mejor servicio al mejor precio y ahí es donde el mal servicio de la fibra óptica está jugando un papel relevante.
+Al cruzar estos perfiles aparece un patrón: el cliente de riesgo tiende a ser **digital y poco atado** (contrata online, paga online, sin permanencia). Es un cliente cómodo comparando ofertas, y por eso un servicio de fibra deficiente le pesa más que a nadie.
 
+### ¿Cuánto vale esto en euros?
 
-Para no quedar solo en el apartado técnico, se ha creado un dashboard con Streamlit en donde se facilita el consumo para el usuario final. En el siguiente enlace se puede consultar el dashboard generado en formato web.
-https://telcochurnappif.streamlit.app/
+Un modelo no se defiende con métricas, se defiende con dinero. Por eso el proyecto cuantifica el retorno de la campaña de retención.
 
-### EJECUTAR NOTEBOOKS
+La estrategia **no trata a todos los clientes igual**: reserva la llamada telefónica (cara, pero efectiva) para el riesgo alto, y el correo electrónico (barato) para el riesgo moderado. El punto de corte entre ambas acciones no se elige a ojo, se calcula buscando el máximo beneficio.
+
+El resultado: por **cada euro invertido** en la campaña de retención se recuperan cerca de **9 euros**, incluso contando el dinero gastado en clientes que no pensaban irse.
+
+Además, la solución no impone una única forma de trabajar. La empresa puede elegir su nivel de agresividad:
+
+| Estrategia | Fugas detectadas | Inversión | Beneficio neto |
+|---|---|---|---|
+| **Agresiva** | 90% | Mayor | Máximo |
+| **Equilibrada** | 80% | Media | Alto |
+| **Selectiva** | 59% | Mínima | Menor |
+
+La eficiencia por euro se mantiene estable en los tres casos: lo que cambia es cuánto valor total se rescata. La decisión deja de ser técnica y pasa a ser lo que debe ser: **una decisión de negocio**.
+
+### ¿Cómo se usa en el día a día?
+
+El proyecto se materializa en un cuadro de mando pensado para el equipo comercial, no para un analista. Con él, un agente puede:
+
+- Ver **qué clientes contactar**, ordenados por urgencia.
+- Saber **qué acción hacer con cada uno** (llamada o email).
+- Entender **por qué** ese cliente está en riesgo, para preparar el argumentario.
+- **Ajustar la estrategia** con dos controles y ver el impacto al instante.
+- **Registrar cada contacto** y dejar notas para la siguiente aproximación.
+
+🔗 **[Ver el dashboard en funcionamiento](https://telcochurnappif.streamlit.app/)**
+
+### En resumen
+
+| | |
+|---|---|
+| **Problema** | 26,5% de fuga detectada demasiado tarde |
+| **Solución** | Predicción anticipada + estrategia de retención diferenciada |
+| **Cobertura** | 8 de cada 10 fugas detectadas a tiempo |
+| **Retorno** | ~9 € por cada euro invertido |
+| **Entregable** | Cuadro de mando operativo para el equipo comercial |
+
+---
 
 ## INSTALACIÓN Y EJECUCIÓN EN LOCAL
 
@@ -66,7 +127,7 @@ Para ejecutar el proyecto en local, sigue estos pasos.
 
 ```bash
 git clone https://github.com/ivanfondo/Portafolio-Data-Science-Python.git
-cd Portafolio-Data-Science-Python/SistemaRecomendacionHibrido
+cd Portafolio-Data-Science-Python/PrediccionChurnTelco
 ```
 
  2. Crear y activar un entorno virtual
@@ -99,15 +160,13 @@ Cuando el entorno esté activado, verás `(.venv)` al principio de la línea de 
 pip install -r requirements_base.txt
 ```
 
-4. Ejecutar los notebooks
+4. Ejecutar el notebook
 
-Los notebooks están numerados según el orden de lectura recomendado:
+```bash
+TelcoChurn.ipynb
+```
 
-1. `1_EDARecomendacion.ipynb` — análisis exploratorio de los datos.
-2. `2_SistemaHibridoLimpio.ipynb` — desarrollo del sistema de recomendación (popularidad, ALS y cascada).
-3. `3_Apriori.ipynb` — análisis de cesta de la compra (inteligencia de negocio).
-
-Puedes abrirlos con Jupyter, VS Code o cualquier editor compatible con notebooks.
+Contiene el análisis exploratorio, la construcción y comparación de los modelos, la explicabilidad con SHAP y el análisis económico. Puedes abrirlo con Jupyter, VS Code o cualquier editor compatible con notebooks.
 
  5. Ejecutar el dashboard en local (opcional)
 
