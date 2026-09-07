@@ -1,0 +1,15 @@
+pandas
+numpy
+statsmodels
+scipy
+scikit-learn
+statsforecast
+utilsforecast
+skforecast
+mlforecast
+lightgbm
+optuna
+shap
+matplotlib
+seaborn
+jupyter
