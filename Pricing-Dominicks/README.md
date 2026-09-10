@@ -55,9 +55,9 @@ Pricing-Dominicks/
 El proyecto avanza sobre un grupo reducido (un producto) y escala al final. Las fases:
 
 1. EDA y limpieza.
-2. Setup de evaluación y marco de pricing (target, horizonte, validación, métrica; y la
+2. Descomposición STL para entender la serie. 
+3. Setup de evaluación y marco de pricing (target, horizonte, validación, métrica; y la
    pregunta de pricing: ingreso vs margen, control de confusores).
-3. Descomposición STL para entender la serie.
 4. Modelo de demanda con precio → elasticidad (regresión log-log con controles).
 5. Modelo de ML (LightGBM) con features de precio + optimización de hiperparámetros.
 6. Comparación fuera de muestra y validación de la curva de demanda.
@@ -107,6 +107,34 @@ festividad (`special`) y tienda como controles para la fase de modelado. Nota de
 identificación pendiente para la fase 4: el flag `SALE` no está registrado de forma
 consistente, por lo que el precio regular se reconstruirá sin depender solo de él.
 
+## Descomposición STL
+
+Una vez los datos están limpios, es momento de descomponer la serie para entender las componentes que la forman. Siguiendo la línea del notebook anterior, la descomposición se realiza sobre un único producto, lo que simplifica el análisis.
+
+Antes de descomponer se busca un punto de corte en el que el número de tiendas se estabilice; el seleccionado es a partir de 1991.
+
+![Cobertura de tiendas y punto de corte](report/figures/05_corte_tiendas.png)
+
+Aún con el corte, el número de tiendas no es constante en el tiempo, por lo que usar la suma de unidades para analizar la serie confundiría dos cosas: la demanda real y cuántas tiendas la registran. Para evitarlo se calcula la media de unidades por tienda, que refleja el nivel de demanda típico por tienda con independencia de cuántas haya cada semana. En esta ventana la diferencia entre suma y media es casi irrelevante, pero se emplea la media por robustez.
+
+`STL` necesita una serie regular y sin huecos. La serie tiene 9 semanas sin registros, que se interpolan. Además, como `STL` es una descomposición aditiva (asume oscilaciones de tamaño constante) y la serie parece multiplicativa (las fluctuaciones crecen con el nivel), hay que transformarla.
+
+Para decidir la transformación se probó primero `Box-Cox`, que devolvió λ ≈ −0,60, lejos del 0 que correspondería al logaritmo. Descartando que fueran los picos, se repitió sin el 1% superior de valores y el resultado empeoró (−0,61). La conclusión no es que la transformación falle, sino que `Box-Cox` responde a otra pregunta: optimiza la normalidad de toda la distribución, no la estabilización de la varianza que necesitamos, y en una serie con suelo bajo y picos tiende a valores sin lectura útil.
+
+La comprobación adecuada es la relación entre nivel y dispersión: al trocear la serie y enfrentar la media de cada tramo con su desviación típica, los puntos crecen en diagonal con una correlación de 0,86. Eso confirma que la serie es multiplicativa y que el logaritmo es la transformación correcta —además de ser la escala natural de la elasticidad—. Se aplica, por tanto, el logaritmo y se interpola sobre él.
+
+![Relación nivel-dispersión](report/figures/06_nivel_dispersion.png)
+
+De la descomposición se extraen estas conclusiones:
+
+![Descomposición STL](report/figures/07_stl_descomposicion.png)
+
+- La tendencia es limpia y legible: cae al inicio de la serie, se recupera y se aplana.
+- La estacionalidad no se captura de forma limpia; no refleja periodos estacionales claros, es decir, no se repiten los mismos patrones cada año.
+- El residuo, salvo puntos concretos, está muy centrado. Ese es el problema de fondo: las promociones no se recogen en el residuo, sino que se trasladan a la componente estacional (el `STL`, forzado a un ciclo de 52 semanas, confunde con estación las promociones que caen en fechas recurrentes).
+
+La conclusión es que la descomposición no sale limpia porque la principal fuente de variación de la demanda son las promociones, algo que no encaja en ninguna de las tres componentes. El contraste de medias lo confirma: en semanas con promoción la componente estacional pasa de −0,21 (sin promo) a +0,21, y el residuo de −0,19 a +0,31. Es la evidencia de que ese empuje promocional se reparte entre ambas componentes. `STL` ha cumplido su función: mostrar que esta serie no es temporal en esencia, sino dirigida por el precio, lo que motiva el modelo de la fase siguiente.
+
 ## Reproducibilidad
 
 ```bash
@@ -120,8 +148,9 @@ Ejecutar los notebooks en orden numérico. El `01` produce
 
 ## Estado
 
-Fase 1 (EDA y limpieza) completada. En curso: descomposición STL y modelado de la
-elasticidad.
+- Notebook 01 — EDA y limpieza: completado.
+- Notebook 02 — Descomposición STL: completado.
+- En curso: modelado de la demanda con precio (elasticidad).
 
 ## Fuente de datos
 
