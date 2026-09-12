@@ -135,6 +135,21 @@ De la descomposición se extraen estas conclusiones:
 
 La conclusión es que la descomposición no sale limpia porque la principal fuente de variación de la demanda son las promociones, algo que no encaja en ninguna de las tres componentes. El contraste de medias lo confirma: en semanas con promoción la componente estacional pasa de −0,21 (sin promo) a +0,21, y el residuo de −0,19 a +0,31. Es la evidencia de que ese empuje promocional se reparte entre ambas componentes. `STL` ha cumplido su función: mostrar que esta serie no es temporal en esencia, sino dirigida por el precio, lo que motiva el modelo de la fase siguiente.
 
+## Elasticidad precio-demanda
+
+El objetivo de esta fase es estimar la elasticidad precio-demanda de Pepsi: en qué porcentaje varía su demanda ante un cambio del 1% en el precio. El planteamiento es progresivo, de una regresión ingenua a un modelo con controles, observando cómo se ajusta la elasticidad en cada paso.
+
+La regresión ingenua (`ln_q ~ ln_p`), sin ningún control, da una elasticidad de **−4,07**, que reproduce la relación ya vista en el EDA.
+
+Al intentar añadir la promoción surge el primer problema. La bandera basada en la columna `SALE` resultó poco fiable (el propio manual advierte de que no se rellena de forma consistente): había semanas marcadas como promoción al precio más alto del histórico. Su coeficiente salía con un signo incoherente, síntoma de una variable mal construida. Se descartó y se optó por reconstruir la información de precio mediante *feature engineering*.
+
+La reconstrucción define un **precio regular de referencia** por tienda —el percentil 90 del precio en una ventana móvil de 13 semanas— y una **profundidad de descuento** como la caída del precio respecto a esa referencia. Esto separa dos efectos que antes se confundían: el nivel de precio regular y la intensidad de la promoción. Con esta especificación, el efecto del descuento pasa a ser **+4,07** (positivo y muy significativo), coherente con el fuerte efecto promocional del EDA, y la elasticidad se sitúa en **−4,18**.
+
+Sobre esta base se añaden más controles. El festivo resulta significativo pero de efecto despreciable. Los **efectos fijos de tienda** sí mueven la elasticidad, de −4,18 a **−3,78**, al absorber diferencias estables entre establecimientos (zona, tamaño, clientela) que antes
+se atribuían en parte al precio; el R² sube a 0,72.
+
+El valor resultante sigue siendo alto porque es una **elasticidad de marca**: mide la respuesta de Pepsi a su propio precio con los sustitutos disponibles, no la de la categoría en conjunto. Por eso, como extensión, se incorpora el precio del rival directo, Coca-Cola, reconstruido igual que el de Pepsi. La **elasticidad cruzada** resulta **+0,91** (positiva y significativa): confirma que son sustitutos —si Coca sube un 1%, la demanda de Pepsi aumenta un 0,91%—. Al controlar por el rival, la elasticidad propia de Pepsi no se atenúa sino que se acentúa hasta **−4,62**, porque los precios de ambas marcas se mueven juntos y, sin controlar el del rival, la elasticidad aparecía amortiguada.
+
 ## Reproducibilidad
 
 ```bash
@@ -150,7 +165,8 @@ Ejecutar los notebooks en orden numérico. El `01` produce
 
 - Notebook 01 — EDA y limpieza: completado.
 - Notebook 02 — Descomposición STL: completado.
-- En curso: modelado de la demanda con precio (elasticidad).
+- Notebook 03 — Elasticidad Precio-Demanda: completado
+- En curso: Notebook 04 — Modelo de demanda con ML (LightGBM). 
 
 ## Fuente de datos
 
