@@ -13,3 +13,4 @@ shap
 matplotlib
 seaborn
 jupyter
+plotly
