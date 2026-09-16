@@ -64,7 +64,7 @@ El proyecto avanza sobre un grupo reducido (un producto) y escala al final. Las 
 7. Optimización de precio (maximizar ingreso o margen).
 8. Escalado a más productos y cierre.
 
-## Hallazgos del EDA (fase 1)
+## Hallazgos del EDA 
 
 **La relación precio–cantidad existe y es clara.** En escala log-log la nube de puntos
 (todas las combinaciones tienda·semana) desciende de forma limpia: a mayor precio, menor
@@ -107,7 +107,7 @@ festividad (`special`) y tienda como controles para la fase de modelado. Nota de
 identificación pendiente para la fase 4: el flag `SALE` no está registrado de forma
 consistente, por lo que el precio regular se reconstruirá sin depender solo de él.
 
-## Descomposición STL (fase 2)
+## Descomposición STL 
 
 Una vez los datos están limpios, es momento de descomponer la serie para entender las componentes que la forman. Siguiendo la línea del notebook anterior, la descomposición se realiza sobre un único producto, lo que simplifica el análisis.
 
@@ -135,7 +135,7 @@ De la descomposición se extraen estas conclusiones:
 
 La conclusión es que la descomposición no sale limpia porque la principal fuente de variación de la demanda son las promociones, algo que no encaja en ninguna de las tres componentes. El contraste de medias lo confirma: en semanas con promoción la componente estacional pasa de −0,21 (sin promo) a +0,21, y el residuo de −0,19 a +0,31. Es la evidencia de que ese empuje promocional se reparte entre ambas componentes. `STL` ha cumplido su función: mostrar que esta serie no es temporal en esencia, sino dirigida por el precio, lo que motiva el modelo de la fase siguiente.
 
-## Elasticidad precio-demanda (fase 3)
+## Elasticidad precio-demanda
 
 El objetivo de esta fase es estimar la elasticidad precio-demanda de Pepsi: en qué porcentaje varía su demanda ante un cambio del 1% en el precio. El planteamiento es progresivo, de una regresión ingenua a un modelo con controles, observando cómo se ajusta la elasticidad en cada paso.
 
@@ -150,7 +150,7 @@ se atribuían en parte al precio; el R² sube a 0,72.
 
 El valor resultante sigue siendo alto porque es una **elasticidad de marca**: mide la respuesta de Pepsi a su propio precio con los sustitutos disponibles, no la de la categoría en conjunto. Por eso, como extensión, se incorpora el precio del rival directo, Coca-Cola, reconstruido igual que el de Pepsi. La **elasticidad cruzada** resulta **+0,91** (positiva y significativa): confirma que son sustitutos —si Coca sube un 1%, la demanda de Pepsi aumenta un 0,91%—. Al controlar por el rival, la elasticidad propia de Pepsi no se atenúa sino que se acentúa hasta **−4,62**, porque los precios de ambas marcas se mueven juntos y, sin controlar el del rival, la elasticidad aparecía amortiguada.
 
-## Predicción de demanda mediante ML (fase 4)
+## Predicción de demanda mediante ML
 
 El objetivo de esta fase es generar una predicción de la demanda mediante `LightGBM`. Para simplificar esta primera iteración se trabaja sobre una serie agregada (media de unidades por tienda y semana) en lugar de sobre los datos de panel. Al promediar el precio entre tiendas se pierde la variación entre establecimientos que sí se explotó al estimar la elasticidad (fase 3), pero aquí no es un problema: el objetivo es predecir la demanda agregada, no estimar el efecto causal del precio.
 
@@ -207,7 +207,8 @@ Ejecutar los notebooks en orden numérico. El `01` produce
 - Notebook 01 — EDA y limpieza: completado.
 - Notebook 02 — Descomposición STL: completado.
 - Notebook 03 — Elasticidad Precio-Demanda: completado
-- En curso: Notebook 04 — Modelo de demanda con ML (LightGBM). 
+- Notebook 04 — Modelo de demanda con ML (LightGBM): completa. 
+- (En curso) Notebook 05 - Comparación OOS + validar curva de demanda.
 
 ## Fuente de datos
 
