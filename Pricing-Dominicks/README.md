@@ -158,13 +158,13 @@ Sobre la serie agregada se analizan la **autocorrelación (ACF)** y la **autocor
 
 ![ACF y PACF de la demanda](report/figures/08_acf_pacf_demanda.png)
 
-Antes de entrenar el modelo de ML se establece un conjunto de modelos de **benchmark** (Naive, Seasonal Naive y AutoETS) que solo usan el pasado de la demanda, sin información de precio. Sirven de listón: si el modelo con precio no los supera, no estaría aportando valor. Como anticipaba el ACF plano, los modelos de referencia rinden mal (mejor MAE = 260, AutoETS), no porque sean malos en sí, sino por la naturaleza de la serie, donde la demanda pasada no basta para anticipar la futura.
+Antes de entrenar el modelo de ML se establece un conjunto de modelos de **benchmark** (Naive, Seasonal Naive y AutoETS) que solo usan el pasado de la demanda, sin información de precio. Sirven de listón: si el modelo con precio no los supera, no estaría aportando valor. Como anticipaba el ACF plano, los modelos de referencia rinden mal en el backtesting sobre train (mejor MAE = 260, AutoETS), no porque sean malos en sí, sino por la naturaleza de la serie, donde la demanda pasada no basta para anticipar la futura.
 
 ![LightGBM vs benchmark: predicción sobre train (backtesting)](report/figures/09_backtesting_lightgbm_vs_benchmark.png)
 
-El `LightGBM` **sin optimizar** ya mejora por sí solo el mejor benchmark en torno a un 48% (MAE 260 → 136). Este es el salto relevante, y es esperable: el modelo incorpora el precio y el descuento, no solo la demanda pasada. La **optimización** por búsqueda bayesiana lo refina de 136 a 121 de MAE: una mejora fina (–11%), no sustancial.
+El `LightGBM` **sin optimizar** ya mejora por sí solo el mejor benchmark de train en torno a un 48% (MAE 260 → 136). Este es el salto relevante, y es esperable: el modelo incorpora el precio y el descuento, no solo la demanda pasada. La **optimización** por búsqueda bayesiana lo refina de 136 a 121 de MAE: una mejora fina (–11%), no sustancial.
 
-**Resultados (MAE y RMSE, backtesting de origen deslizante sobre train):**
+**Resultados en backtesting de origen deslizante (sobre train):**
 
 | Modelo                    | MAE | RMSE |
 |---------------------------|----:|-----:|
@@ -174,12 +174,22 @@ El `LightGBM` **sin optimizar** ya mejora por sí solo el mejor benchmark en tor
 | LightGBM sin optimizar    | 137 | 242  |
 | **LightGBM optimizado**   | **121** | **227** |
 
-Evaluación final del modelo optimizado, una sola vez sobre el test (último año intacto): **MAE 182 · RMSE 327**.
-
-
 Todas las decisiones anteriores se toman con backtesting sobre el conjunto de entrenamiento. Solo entonces se evalúa **una única vez sobre el test** (el último año, intacto hasta este punto), obteniendo un **MAE de 182**. El salto respecto al 121 del backtesting no es una alarma y tiene dos causas: el backtesting reentrenaba el modelo en cada ventana (`refit=True`) mientras que el test no (`refit=False`), y el periodo de test es intrínsecamente más volátil (media 317 vs 282, desviación 429 vs 344). Además, el test contiene un pico excepcional (diciembre de 1996, el más alto de toda la serie) que el modelo subestima. El contraste entre MAE (182) y RMSE (327) lo confirma: el error no está repartido, sino concentrado en unos pocos picos. El 182 es el número honesto; el 121 era optimista.
 
 ![Test: predicción vs demanda real](report/figures/10_test_prediccion_vs_real.png)
+
+Ese 182, sin embargo, no es comparable con el 260 de los benchmarks: aquel es de test y este de backtesting sobre train. Para un veredicto justo se evalúan también los modelos de referencia sobre el test, y el mapa cambia. AutoETS, el mejor en train, se desploma a 313: su estructura suave de nivel y estacionalidad no encaja con un periodo volátil y con picos. El mejor benchmark en test pasa a ser Seasonal Naive (267), que engancha parte de los picos al repetir la semana equivalente del año anterior, no por ser mejor modelo, sino porque su mecanismo tosco casa con la recurrencia de calendario de las promociones.
+
+**Resultados sobre el conjunto de test (todos los modelos, mismo protocolo):**
+
+| Modelo                  | MAE | RMSE |
+|-------------------------|----:|-----:|
+| **LightGBM optimizado** | **182** | **327** |
+| Seasonal Naive          | 267 | 473  |
+| AutoETS                 | 313 | 455  |
+| Naive                   | 468 | 804  |
+
+En igualdad de condiciones, el `LightGBM` mantiene una ventaja amplia: 182 frente a 267 del mejor benchmark, un 31% menos de error. Los RMSE lo refuerzan: los baselines fallan de forma catastrófica en los picos (Seasonal Naive salta de 267 a 473; Naive, de 468 a 804), mientras que el LightGBM los acusa mucho menos. La lección de método es que "el mejor benchmark" depende del protocolo de evaluación: solo evaluando a todos sobre el mismo test la comparación es honesta, y es esa comparación la que confirma que incorporar el precio mejora sustancialmente la predicción de la demanda.
 
 Por último, para dar transparencia al modelo de caja negra se calculan los valores **SHAP** sobre la serie completa. Confirman que la variable dominante es, con mucha diferencia, el `DESCUENTO`, por encima del `PRECIO_REF` (construido en la fase 3) y del precio de Coca-Cola; los lags de demanda quedan por debajo de todos ellos. Conviene matizar la lectura: que `PRECIO_REF` pese poco no significa que la demanda sea insensible al precio, sino que el precio *regular* apenas varía en estos datos (por construcción). La acción del precio llega por la vía del descuento, que no deja de ser una bajada de precio. Es plenamente coherente con la elasticidad estimada en la fase 3.
 
