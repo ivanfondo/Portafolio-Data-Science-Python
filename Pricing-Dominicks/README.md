@@ -218,7 +218,7 @@ Ejecutar los notebooks en orden numérico. El `01` produce
 - Notebook 02 — Descomposición STL: completado.
 - Notebook 03 — Elasticidad Precio-Demanda: completado
 - Notebook 04 — Modelo de demanda con ML (LightGBM): completa. 
-- (En curso) Notebook 05 - Comparación OOS + validar curva de demanda.
+- (En curso) Notebook 05 - validar curva de demanda.
 
 ## Fuente de datos
 
