@@ -107,7 +107,7 @@ festividad (`special`) y tienda como controles para la fase de modelado. Nota de
 identificación pendiente para la fase 4: el flag `SALE` no está registrado de forma
 consistente, por lo que el precio regular se reconstruirá sin depender solo de él.
 
-## Descomposición STL
+## Descomposición STL (fase 2)
 
 Una vez los datos están limpios, es momento de descomponer la serie para entender las componentes que la forman. Siguiendo la línea del notebook anterior, la descomposición se realiza sobre un único producto, lo que simplifica el análisis.
 
@@ -135,7 +135,7 @@ De la descomposición se extraen estas conclusiones:
 
 La conclusión es que la descomposición no sale limpia porque la principal fuente de variación de la demanda son las promociones, algo que no encaja en ninguna de las tres componentes. El contraste de medias lo confirma: en semanas con promoción la componente estacional pasa de −0,21 (sin promo) a +0,21, y el residuo de −0,19 a +0,31. Es la evidencia de que ese empuje promocional se reparte entre ambas componentes. `STL` ha cumplido su función: mostrar que esta serie no es temporal en esencia, sino dirigida por el precio, lo que motiva el modelo de la fase siguiente.
 
-## Elasticidad precio-demanda
+## Elasticidad precio-demanda (fase 3)
 
 El objetivo de esta fase es estimar la elasticidad precio-demanda de Pepsi: en qué porcentaje varía su demanda ante un cambio del 1% en el precio. El planteamiento es progresivo, de una regresión ingenua a un modelo con controles, observando cómo se ajusta la elasticidad en cada paso.
 
@@ -149,6 +149,47 @@ Sobre esta base se añaden más controles. El festivo resulta significativo pero
 se atribuían en parte al precio; el R² sube a 0,72.
 
 El valor resultante sigue siendo alto porque es una **elasticidad de marca**: mide la respuesta de Pepsi a su propio precio con los sustitutos disponibles, no la de la categoría en conjunto. Por eso, como extensión, se incorpora el precio del rival directo, Coca-Cola, reconstruido igual que el de Pepsi. La **elasticidad cruzada** resulta **+0,91** (positiva y significativa): confirma que son sustitutos —si Coca sube un 1%, la demanda de Pepsi aumenta un 0,91%—. Al controlar por el rival, la elasticidad propia de Pepsi no se atenúa sino que se acentúa hasta **−4,62**, porque los precios de ambas marcas se mueven juntos y, sin controlar el del rival, la elasticidad aparecía amortiguada.
+
+## Predicción de demanda mediante ML (fase 4)
+
+El objetivo de esta fase es generar una predicción de la demanda mediante `LightGBM`. Para simplificar esta primera iteración se trabaja sobre una serie agregada (media de unidades por tienda y semana) en lugar de sobre los datos de panel. Al promediar el precio entre tiendas se pierde la variación entre establecimientos que sí se explotó al estimar la elasticidad (fase 3), pero aquí no es un problema: el objetivo es predecir la demanda agregada, no estimar el efecto causal del precio.
+
+Sobre la serie agregada se analizan la **autocorrelación (ACF)** y la **autocorrelación parcial (PACF)**. Ambas son prácticamente planas, lo que muestra que la demanda apenas se explica por sus propios valores pasados y confirma, una vez más, que el motor de la serie no es la inercia temporal sino el precio y la promoción.
+
+![ACF y PACF de la demanda](report/figures/08_acf_pacf_demanda.png)
+
+Antes de entrenar el modelo de ML se establece un conjunto de modelos de **benchmark** (Naive, Seasonal Naive y AutoETS) que solo usan el pasado de la demanda, sin información de precio. Sirven de listón: si el modelo con precio no los supera, no estaría aportando valor. Como anticipaba el ACF plano, los modelos de referencia rinden mal (mejor MAE = 260, AutoETS), no porque sean malos en sí, sino por la naturaleza de la serie, donde la demanda pasada no basta para anticipar la futura.
+
+![LightGBM vs benchmark: predicción sobre train (backtesting)](report/figures/09_backtesting_lightgbm_vs_benchmark.png)
+
+El `LightGBM` **sin optimizar** ya mejora por sí solo el mejor benchmark en torno a un 48% (MAE 260 → 136). Este es el salto relevante, y es esperable: el modelo incorpora el precio y el descuento, no solo la demanda pasada. La **optimización** por búsqueda bayesiana lo refina de 136 a 121 de MAE: una mejora fina (–11%), no sustancial.
+
+**Resultados (MAE y RMSE, backtesting de origen deslizante sobre train):**
+
+| Modelo                    | MAE | RMSE |
+|---------------------------|----:|-----:|
+| Naive                     | 320 | 445  |
+| Seasonal Naive            | 268 | 449  |
+| AutoETS                   | 260 | 346  |
+| LightGBM sin optimizar    | 137 | 242  |
+| **LightGBM optimizado**   | **121** | **227** |
+
+Evaluación final del modelo optimizado, una sola vez sobre el test (último año intacto): **MAE 182 · RMSE 327**.
+
+
+Todas las decisiones anteriores se toman con backtesting sobre el conjunto de entrenamiento. Solo entonces se evalúa **una única vez sobre el test** (el último año, intacto hasta este punto), obteniendo un **MAE de 182**. El salto respecto al 121 del backtesting no es una alarma y tiene dos causas: el backtesting reentrenaba el modelo en cada ventana (`refit=True`) mientras que el test no (`refit=False`), y el periodo de test es intrínsecamente más volátil (media 317 vs 282, desviación 429 vs 344). Además, el test contiene un pico excepcional (diciembre de 1996, el más alto de toda la serie) que el modelo subestima. El contraste entre MAE (182) y RMSE (327) lo confirma: el error no está repartido, sino concentrado en unos pocos picos. El 182 es el número honesto; el 121 era optimista.
+
+![Test: predicción vs demanda real](report/figures/10_test_prediccion_vs_real.png)
+
+Por último, para dar transparencia al modelo de caja negra se calculan los valores **SHAP** sobre la serie completa. Confirman que la variable dominante es, con mucha diferencia, el `DESCUENTO`, por encima del `PRECIO_REF` (construido en la fase 3) y del precio de Coca-Cola; los lags de demanda quedan por debajo de todos ellos. Conviene matizar la lectura: que `PRECIO_REF` pese poco no significa que la demanda sea insensible al precio, sino que el precio *regular* apenas varía en estos datos (por construcción). La acción del precio llega por la vía del descuento, que no deja de ser una bajada de precio. Es plenamente coherente con la elasticidad estimada en la fase 3.
+
+![Importancia de variables (SHAP)](report/figures/11_shap_summary.png)
+
+El gráfico de dependencia del `DESCUENTO` refuerza el hallazgo: la relación es creciente y de gran magnitud, y los descuentos más efectivos tienden a coincidir con un precio de Coca-Cola alto, un eco no paramétrico de la elasticidad cruzada con el rival.
+
+![Respuesta de la demanda al descuento (SHAP)](report/figures/12_shap_dependence_descuento.png)
+
+**Uso a futuro (what-if).** Como el modelo predice la demanda a partir del precio y el descuento, proyectar fuera del histórico exige fijar un escenario de precios: no existe "la predicción a futuro" a secas, sino la demanda condicionada a un plan de precios. Se ilustra comparando dos escenarios a 4 semanas (el horizonte avalado por el backtesting) —sin promoción frente a un 20% de descuento—, con intervalos de predicción por bootstrap de residuos. El descuento casi duplica la demanda esperada, a costa de una banda más ancha: más venta esperada, pero también más incertidumbre. Este what-if condicional es la antesala directa de la optimización de precio.
 
 ## Reproducibilidad
 
