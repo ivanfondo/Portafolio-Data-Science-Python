@@ -15,3 +15,6 @@ __pycache__/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Artefactos generados (se regeneran ejecutando los notebooks)
+models/
