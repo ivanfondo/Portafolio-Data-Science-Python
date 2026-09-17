@@ -42,7 +42,8 @@ Pricing-Dominicks/
 │   ├── 03_demanda_elasticidad.ipynb
 │   ├── 04_ml_features_opt.ipynb
 │   ├── 05_comparacion_oos.ipynb
-│   └── 06_optimizacion_precio.ipynb
+│   ├── 06_optimizacion_precio.ipynb
+│   └── 07_escalado.ipynb
 ├── src/                  
 ├── reports/figures/      
 ├── requirements.txt
