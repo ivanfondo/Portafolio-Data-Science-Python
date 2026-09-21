@@ -202,6 +202,20 @@ El gráfico de dependencia del `DESCUENTO` refuerza el hallazgo: la relación es
 
 **Uso a futuro (what-if).** Como el modelo predice la demanda a partir del precio y el descuento, proyectar fuera del histórico exige fijar un escenario de precios: no existe "la predicción a futuro" a secas, sino la demanda condicionada a un plan de precios. Se ilustra comparando dos escenarios a 4 semanas (el horizonte avalado por el backtesting) —sin promoción frente a un 20% de descuento—, con intervalos de predicción por bootstrap de residuos. El descuento casi duplica la demanda esperada, a costa de una banda más ancha: más venta esperada, pero también más incertidumbre. Este what-if condicional es la antesala directa de la optimización de precio.
 
+## Validación de la curva de demanda
+
+La relación precio-demanda se ha estimado por dos vías independientes: la regresión log-log, que impone elasticidad constante y resume la respuesta en un parámetro ($e$ = −4,62), y el modelo LightGBM, que la aprende sin imponer forma funcional. Esta fase las contrasta para validar que ambas describen la misma relación.
+
+Se construye la curva de demanda implícita de LightGBM mediante un análisis what-if: se fija una semana representativa (cada variable en su mediana) y se barre el precio a través del descuento, dentro del rango observado, prediciendo la demanda en cada punto. La curva resultante se superpone a la recta log-log de la regresión, comparando en escala logarítmica, donde la elasticidad es la pendiente.
+
+El resultado valida la relación: la elasticidad implícita de LightGBM (−4,24) coincide en la práctica con la de la regresión (−4,62), una diferencia de apenas 0,38 puntos entre dos métodos radicalmente distintos. La pequeña discrepancia es coherente —la curva del ML se
+construye sobre la serie agregada con el rival fijo, una situación algo menos elástica que el panel con efectos fijos de la regresión— y la forma escalonada de la curva del ML refleja su capacidad para capturar no linealidades que la recta, por construcción, no ve.
+
+La conclusión operativa es que se dispone de una curva de demanda validada por dos caminos independientes, con fundamento sólido para la optimización de precio de la fase siguiente, siempre dentro del rango de precios analizado (fuera de él, ninguna de las dos curvas es
+fiable).
+
+![Superposición de las curvas de demanda: LightGBM vs log-log](report/figures/13_validacion_curvas.png)
+
 ## Reproducibilidad
 
 ```bash
@@ -219,7 +233,8 @@ Ejecutar los notebooks en orden numérico. El `01` produce
 - Notebook 02 — Descomposición STL: completado.
 - Notebook 03 — Elasticidad Precio-Demanda: completado
 - Notebook 04 — Modelo de demanda con ML (LightGBM): completa. 
-- (En curso) Notebook 05 - validar curva de demanda.
+- Notebook 05 - Validar curva de demanda: completa
+- (En Curso) - Notebook 06 - Optimización precio
 
 ## Fuente de datos
 
