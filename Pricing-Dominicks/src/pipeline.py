@@ -248,7 +248,11 @@ def optimizar_varios(
     if guardar_csv:
         config.asegurar_directorios()
         ruta = config.REPORTS / "optimizacion_consolidada.csv"
-        # utf-8-sig para que Excel en Windows lea bien acentos y el símbolo €
-        tabla.to_csv(ruta, index=False, encoding="utf-8-sig")
+        # Formato español para que Excel en Windows lo abra bien al doble clic:
+        #   sep=";"       separador de columnas (en España la coma es el decimal)
+        #   decimal=","   separador decimal
+        #   utf-8-sig     acentos y símbolo € correctos
+        # (pandas entrecomilla solo las celdas que contengan ";", p.ej. varios avisos)
+        tabla.to_csv(ruta, index=False, sep=";", decimal=",", encoding="utf-8-sig")
 
     return tabla
