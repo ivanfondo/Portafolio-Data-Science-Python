@@ -1,3 +1,14 @@
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-2.3.3-150458?logo=pandas&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-2.4.6-013243?logo=numpy&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.9.0-F7931E?logo=scikitlearn&logoColor=white)
+![LightGBM](https://img.shields.io/badge/LightGBM-4.7.0-2E8B57)
+![Optuna](https://img.shields.io/badge/Optuna-5.0.0-2C6BB3)
+![SHAP](https://img.shields.io/badge/SHAP-0.51.0-C0392B)
+![skforecast](https://img.shields.io/badge/skforecast-0.24.0-E85D4E)
+![statsmodels](https://img.shields.io/badge/statsmodels-0.15.0-3E4C6D)
+![Plotly](https://img.shields.io/badge/Plotly-7.0.0-3F4F75?logo=plotly&logoColor=white)
+
 # Pricing en retail: elasticidad y optimización de precio
 
 Estimación de la **elasticidad precio-demanda** de un producto de refrescos a partir
@@ -32,20 +43,23 @@ reproducir el proyecto, descargar y colocar en `data/raw/`:
 
 ```
 Pricing-Dominicks/
-├── data/                
-│   ├── raw/              
-│   ├── interim/          
-│   └── processed/        
+├── data/
+│   ├── raw/                          # datos originales (Dominick's)
+│   ├── interim/                      # datos intermedios
+│   └── processed/                    # datos listos para modelado
 ├── notebooks/
 │   ├── 01_eda_limpieza.ipynb
 │   ├── 02_grupo_reducido_stl.ipynb
 │   ├── 03_demanda_elasticidad.ipynb
-│   ├── 04_ml_features_opt.ipynb
-│   ├── 05_comparacion_oos.ipynb
-│   ├── 06_optimizacion_precio.ipynb
-│   └── 07_escalado.ipynb
-├── src/                  
-├── reports/figures/      
+│   ├── 04_ML_demanda.ipynb
+│   ├── 05_validacion_curva_demanda.ipynb
+│   └── 06_optimizacion_precio.ipynb
+├── src/
+│   ├── README.md                     # Guía scripts
+├── scripts/
+├── models/
+├── report/figures/                   # figuras del informe
+├── reports/                          # salidas generadas (csv, json), solo .gitkeep versionado
 ├── requirements.txt
 ├── .gitignore
 └── README.md
