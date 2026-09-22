@@ -216,6 +216,21 @@ fiable).
 
 ![Superposición de las curvas de demanda: LightGBM vs log-log](report/figures/13_validacion_curvas.png)
 
+## Optimización de precio
+
+Con la curva de demanda estimada y validada, esta fase responde la pregunta final del proyecto: **¿qué precio conviene fijar para Pepsi?** El objetivo que se maximiza es el **margen de contribución** (beneficio unitario), no el ingreso. La razón es económica: con una demanda tan elástica ($e$ = −4,62), maximizar ingreso lleva a bajar el precio al mínimo posible, una solución de esquina que además ignora el coste. Maximizar margen sí produce un óptimo interior y accionable.
+
+El coste unitario se recupera de los datos, en donde la variable `PROFIT` es el margen bruto del minorista, del que se despeja `c = UNIT_PRICE · (1 − PROFIT/100)`. Como coste de referencia se toma la mediana en las semanas a precio regular, excluyendo las promociones, ya que el coste de un producto no cambia porque esté de oferta, lo que cambia es el margen.
+
+Aplicando la **regla de Lerner** (`P* = c · ε/(1+ε)`) el **precio óptimo resulta 1,61 €** (un markup del 27,6% sobre el coste, o un margen del 21,6% sobre el precio de venta). El valor cae dentro del rango histórico, por lo que no extrapola. Y es coherente con la práctica real: 1,61 € se sitúa justo entre los precios regulares que Dominick's aplicaba a Pepsi (1,59 y 1,69 €). El método no contradice la política observada, sino que la respalda y le da fundamento cuantitativo.
+
+![Curva de margen: óptimo y banda de precios](report/figures/14_curva_margen_banda.png)
+
+En la práctica, establecer un precio óptimo fijo es una solución frágil. En este caso, al situarse cerca del máximo la curva de margen es plana, lo que da lugar a que los precios ligeramente diferentes del precio óptimo den como resultado prácticamente el mismo beneficio. Para dar grados de libertad en la decisión, se establece una **banda de precios** al 95%, es decir, cualquier precio entre **1,51 y 1,76€** se encuentra dentro del margen del 95% máximo de benficios.
+
+Finalmente, se analiza la **sensibilidad** del precio a la elasticidad y costes. En cuanto a la elasticidad, el precio es robusto, es decir, de las tres elasticidades obtenidas, resulta en cierta medida indiferente usar cualquiera de ellas ya que devuelven precios muy similares (1,61 - 1,72€). Por el contrario, el precio si que resulta sensible al coste, el cúal multiplica directamente en la fórmula. Un coste entre 1,15 y 1,43€ desplaza el precio óptimo entre 1,47 y 1,83€. 
+
+
 ## Reproducibilidad
 
 ```bash
@@ -231,10 +246,10 @@ Ejecutar los notebooks en orden numérico. El `01` produce
 
 - Notebook 01 — EDA y limpieza: completado.
 - Notebook 02 — Descomposición STL: completado.
-- Notebook 03 — Elasticidad Precio-Demanda: completado
-- Notebook 04 — Modelo de demanda con ML (LightGBM): completa. 
-- Notebook 05 - Validar curva de demanda: completa
-- (En Curso) - Notebook 06 - Optimización precio
+- Notebook 03 — Elasticidad Precio-Demanda: completado.
+- Notebook 04 — Modelo de demanda con ML (LightGBM): completado. 
+- Notebook 05 - Validar curva de demanda: completado.
+- Notebook 06 - Optimización precio: completado.
 
 ## Fuente de datos
 
