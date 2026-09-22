@@ -60,6 +60,7 @@ def main() -> None:
     if args.todos:
         tabla = pipeline.optimizar_varios(umbral=args.umbral)
         print(tabla.to_string(index=False))
+        print(f"\n  Tabla guardada en: {config.REPORTS / 'optimizacion_consolidada.csv'}")
         return
 
     # Escenario solo si el usuario pasó algún valor; si no, se usa el por defecto.

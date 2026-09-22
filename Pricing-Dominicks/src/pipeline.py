@@ -209,12 +209,15 @@ def evaluar_calidad(params: dict) -> list[str]:
 def optimizar_varios(
     productos: list[str] | None = None,
     umbral: float = config.UMBRAL_BANDA,
+    guardar_csv: bool = True,
 ) -> pd.DataFrame:
     """Recorre varios productos y devuelve una tabla consolidada con filtro de calidad.
 
     Cada producto debe estar ya entrenado (tener su params.json). El resultado es el
     entregable final de la automatización: una fila por producto con su precio óptimo,
-    banda, y un marcador de fiabilidad.
+    banda, y un marcador de fiabilidad. Por defecto lo guarda también en
+    reports/optimizacion_consolidada.csv (una fila por producto, formato ideal para
+    abrir en Excel o Power BI).
     """
     productos = productos or list(config.PRODUCTOS)
     filas = []
@@ -239,4 +242,13 @@ def optimizar_varios(
                 "avisos": "; ".join(avisos) if avisos else "",
             }
         )
-    return pd.DataFrame(filas)
+
+    tabla = pd.DataFrame(filas)
+
+    if guardar_csv:
+        config.asegurar_directorios()
+        ruta = config.REPORTS / "optimizacion_consolidada.csv"
+        # utf-8-sig para que Excel en Windows lea bien acentos y el símbolo €
+        tabla.to_csv(ruta, index=False, encoding="utf-8-sig")
+
+    return tabla
