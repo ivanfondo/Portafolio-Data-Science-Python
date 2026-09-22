@@ -309,27 +309,3 @@ pasas el CSV en Excel o, mejor, un informe de Power BI construido sobre él.
 | `KeyError: producto '...' no está en el registro` | El nombre no está en `PRODUCTOS` | Añádelo en `config.py` o revisa el nombre |
 
 ---
-
-## 10. Estado de validación (honestidad)
-
-- **Cadena econométrica** (`data → features → elasticity → cost → optimize`): probada
-  de principio a fin con datos sintéticos de elasticidad conocida. Recupera los valores
-  inyectados; la banda y el flag `dentro_del_rango` funcionan.
-- **`forecast.py`** (LightGBM + skforecast): validado por sintaxis y revisión,
-  replicando la API de los notebooks, pero **no ejecutado aquí** (requiere los datos
-  crudos y las librerías pesadas). Lo ejecutas tú en local con `entrenar.py`. El
-  cálculo del intervalo va envuelto en `try/except` por si tu versión de skforecast
-  cambia la firma de `predict_interval`.
-
----
-
-## 11. Por qué está partido así (arquitectura, en breve)
-
-Cada módulo de `src/` hace una sola cosa; `pipeline.py` es el único que los encadena y
-`config.py` el único con constantes y rutas. La frontera real no es "un módulo por
-notebook" sino **entrenar (offline, caro, ocasional) vs. optimizar (online, barato,
-automatizable)**. El puente entre ambas fases son los artefactos en disco: por eso el
-precio óptimo se reconstruye entero desde `params.json` sin volver a leer los datos
-crudos ni cargar el modelo. Las cuatro decisiones de diseño concretas (óptimo separado
-del forecaster, modelo entrenado con todos los datos, `params.json` con la curva
-completa, umbral de banda parametrizado) están comentadas en el código de cada módulo.
