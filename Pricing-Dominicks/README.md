@@ -230,6 +230,25 @@ En la práctica, establecer un precio óptimo fijo es una solución frágil. En 
 
 Finalmente, se analiza la **sensibilidad** del precio a la elasticidad y costes. En cuanto a la elasticidad, el precio es robusto, es decir, de las tres elasticidades obtenidas, resulta en cierta medida indiferente usar cualquiera de ellas ya que devuelven precios muy similares (1,61 - 1,72€). Por el contrario, el precio si que resulta sensible al coste, el cúal multiplica directamente en la fórmula. Un coste entre 1,15 y 1,43€ desplaza el precio óptimo entre 1,47 y 1,83€. 
 
+## Productivización
+
+Los notebooks son el registro del análisis; el paquete `src/` es ese análisis convertido en herramienta reutilizable. La misma lógica (elasticidad, coste, curva de
+demanda, optimización) se reorganiza en módulos de responsabilidad única, orquestados por dos comandos que separan las dos operaciones reales del proyecto:
+
+- **Entrenar** (offline, ocasional): estima la elasticidad y el coste, entrena el
+  modelo de demanda y guarda los artefactos (`params.json` + `forecaster.joblib`).
+- **Optimizar** (online, automatizable): lee esos artefactos y calcula el precio
+  óptimo, su banda y la demanda prevista bajo un escenario de precio.
+
+```bash
+python scripts/entrenar.py --producto pepsi_2l    # entrena y guarda artefactos
+python scripts/optimizar.py --producto pepsi_2l   # precio óptimo + demanda prevista
+python scripts/optimizar.py --todos               # tabla consolidada (varios productos)
+```
+
+Añadir un producto es una entrada en el registro `config.PRODUCTOS`; el resto del pipeline lo recorre solo. La guía completa —todos los flags, los escenarios de
+descuento, la configuración y cómo interpretar las salidas— está en **[`src/README.md`](src/README.md)**.
+
 
 ## Reproducibilidad
 
