@@ -104,6 +104,7 @@ PRODUCTOS = {
     # Reservados para el escalado (mismo formato 2 L). Descomentar al escalar:
      "coca_2l": {"upc": 4900000639, "rival_upc": 1200000230, "etiqueta": "Coca-Cola 2 L"},
      "diet_coke_2l": {"upc": 4900000663, "rival_upc": 1200000230, "etiqueta": "Diet Coke 2 L"},
+     "seven_up_2l": {"upc": 7800000034, "rival_upc": 1200000230, "etiqueta": "SEVEN-UP 2L"},
 }
 
 
