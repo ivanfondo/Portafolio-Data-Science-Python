@@ -5,3 +5,7 @@ __pycache__/
 
 # Excepciones: modelos entrenados necesarios para las apps
 !PrediccionChurnTelco/data/modelo_churn_final.pkl
+
+
+sql-olist/.env
+sql-olist/data/
