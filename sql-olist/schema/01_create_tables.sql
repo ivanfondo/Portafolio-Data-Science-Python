@@ -1,3 +1,6 @@
+-- Consulta inicial para crear las diferentes tablas que componen el ejercicio
+-- En esta fase solo se crean tablas y se visualiza la relación entre ellas para crear las PK y FK
+
 create table product_category_name_translation (
   product_category_name text,
   product_category_name_english text
