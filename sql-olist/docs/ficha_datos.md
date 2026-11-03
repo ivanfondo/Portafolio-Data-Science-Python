@@ -12,3 +12,8 @@ En esta ficha se recoge la información de la primera etapa, en donde identifica
 | `product_category_name_translation` | Registra la traducción al inglés de cada categoría de producto. | 71 | `products` | Cada fila es una categoría y su traducción | `product_category_name` |
 | `products` | Registra el tipo de producto y sus características. | 32.951 | `order_items` y `product_category_name_translation` (lógica) | Cada fila es un producto | `product_id` |
 | `sellers` | Registra los datos de cada vendedor. | 3.095 | `order_items` | Cada fila es un vendedor | `seller_id` |
+
+
+
+## Calidad del dato
+
