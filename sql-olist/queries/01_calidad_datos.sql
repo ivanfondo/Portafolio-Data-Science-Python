@@ -104,7 +104,7 @@ FROM orders
 GROUP BY order_status;
 -- Resultado: 99.441 filas; 99.441 purchase; 99.281 approved; 97.658 delivered_carrier; 
 -- 96.476 delivered_customer; 99.441 estimated
--- Las categorías created, approved, invoiced, processing, unavaliable y shipped tienen las fechas de las etapas que han alcanzado,
+-- Las categorías created, approved, invoiced, processing, unavailable y shipped tienen las fechas de las etapas que han alcanzado,
 -- no hay incoherencias.
 -- La categoría delivered (96.478) cuenta con 14 pedidos sin aprobación, 2 sin transportista y 8 sin fecha de entrega
 -- Para calcular si los plazos de entrega se cumplen, solo usaremos el estado delivered
