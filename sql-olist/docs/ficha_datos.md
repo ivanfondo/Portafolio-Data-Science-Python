@@ -13,7 +13,24 @@ En esta ficha se recoge la información de la primera etapa, en donde identifica
 | `products` | Registra el tipo de producto y sus características. | 32.951 | `order_items` y `product_category_name_translation` (lógica) | Cada fila es un producto | `product_id` |
 | `sellers` | Registra los datos de cada vendedor. | 3.095 | `order_items` | Cada fila es un vendedor | `seller_id` |
 
-
-
 ## Calidad del dato
 
+Resumen de lo comprobado en `queries/01_calidad_datos.sql`.
+
+| Hallazgo | Cifra | Qué implica |
+|---|---|---|
+| Periodo de los pedidos | 2016-09-04 a 2018-10-17 | Es el periodo bruto: no garantiza un volumen uniforme a lo largo del tiempo |
+| Pedidos sin ninguna línea (`order_items`) | 775 | No generan ingresos si estos se calculan desde `order_items` |
+| Pedidos sin ningún pago (`order_payments`) | 1 | Caso aislado, a tener en cuenta al sumar pagos |
+| Pedidos `delivered` con fechas nulas | 14 sin aprobación, 2 sin transportista y 8 sin fecha de entrega (menos del 0,02 %) | Para plazos de entrega, excluir los 8 sin fecha de entrega |
+| Pedidos `canceled` con fecha de entrega | 6 | Caso a revisar: no se puede saber si es un error o una cancelación posterior a la entrega |
+| Productos sin categoría | 610 (1,9 %) | Los análisis por categoría tendrán un grupo sin categoría |
+| `customer_id` frente a personas | 99.441 frente a 96.096 | Para contar clientes hay que usar `customer_unique_id` |
+
+## Preguntas de negocio que se pueden responder
+
+- Categoría de producto más vendida
+- Tiempo entre pedido y envío, comparado con el tiempo estimado
+- Valor del ticket medio
+- Concentración geográfica de customers y sellers
+- Monto de ventas y medias móviles
