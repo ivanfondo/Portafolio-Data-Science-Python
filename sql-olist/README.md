@@ -10,6 +10,20 @@ Los datos se extraen de la web pública **Kaggle** ([Brazilian E-Commerce Public
 
 Cada consulta planteada parte de una pregunta de negocio, y se almacena en este repositorio para poder reproducirla.
 
+## Etapas
+
+### Etapa 1: Comprensión y calidad del dato
+
+Antes de responder preguntas de negocio, se comprueba qué datos hay y hasta dónde se puede fiarse de ellos.
+
+- Se identifica qué registra cada tabla, su grano (qué representa una fila) y su clave.
+- Se crean las claves primarias y foráneas para relacionar las tablas ([`schema/02_add_keys.sql`](schema/02_add_keys.sql)).
+- Se cuentan las filas y se comprueba la unicidad de las claves.
+- Se revisan el rango de fechas, los nulos y las incoherencias entre estado y fechas.
+- Se concluye qué preguntas se pueden responder, cuáles con cautela y cuáles no.
+
+Consultas: [`queries/01_calidad_datos.sql`](queries/01_calidad_datos.sql). Resultados: [`docs/ficha_datos.md`](docs/ficha_datos.md).
+
 ## Estructura del proyecto
 
 ```text
@@ -17,7 +31,8 @@ sql-olist/
 ├── README.md
 ├── docs/
 │   └── ficha_datos.md           # grano, clave y relaciones de cada tabla
-├── queries/                     # consultas SQL, cada una con su pregunta de negocio
+├── queries/
+│   └── 01_calidad_datos.sql     # Etapa 1: filas, claves, fechas y nulos
 └── schema/
     ├── 01_create_tables.sql     # crea las 8 tablas
     └── 02_add_keys.sql          # añade claves primarias y foráneas (tras cargar los CSV)
