@@ -20,7 +20,7 @@ Antes de responder preguntas de negocio, se comprueba qué datos hay y hasta dó
 - Se crean las claves primarias y foráneas para relacionar las tablas ([`schema/02_add_keys.sql`](schema/02_add_keys.sql)).
 - Se cuentan las filas y se comprueba la unicidad de las claves.
 - Se revisan el rango de fechas, los nulos y las incoherencias entre estado y fechas.
-- Se concluye qué preguntas se pueden responder, cuáles con cautela y cuáles no.
+- Se concluye qué preguntas se pueden responder.
 
 Consultas: [`queries/01_calidad_datos.sql`](queries/01_calidad_datos.sql). Resultados: [`docs/ficha_datos.md`](docs/ficha_datos.md).
 
