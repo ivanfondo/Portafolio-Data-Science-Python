@@ -12,7 +12,7 @@ Cada consulta planteada parte de una pregunta de negocio, y se almacena en este 
 
 ## Etapas
 
-### Etapa 1: Comprensión y calidad del dato
+### Etapa 1: comprensión y calidad del dato
 
 Antes de responder preguntas de negocio, se comprueba qué datos hay y hasta dónde se puede fiarse de ellos.
 
@@ -24,15 +24,32 @@ Antes de responder preguntas de negocio, se comprueba qué datos hay y hasta dó
 
 Consultas: [`queries/01_calidad_datos.sql`](queries/01_calidad_datos.sql). Resultados: [`docs/ficha_datos.md`](docs/ficha_datos.md).
 
+### Etapa 2: de la pregunta de negocio a la consulta
+
+La pregunta planteada es: ¿qué categorías y vendedores generan más ingresos a lo largo del período?
+
+- Las decisiones tomadas para el planteamiento de consultas están en [`docs/decisiones.md`](docs/decisiones.md).
+- El período analizado para las categorías es de Q1 2017 a Q2 2018. A mayores, debido a un corte de datos en septiembre de 2018, se realiza una comparación individual de julio y agosto 2017 con 2018.
+- En cuanto a vendedores, se analiza la concentración de ventas y el número de vendedores que se necesitan para llegar al 20 % del ingreso entre Q2 2017 y Q2 2018.
+
+Consultas: [`queries/02_ingresos_categorias_vendedores.sql`](queries/02_ingresos_categorias_vendedores.sql).
+
+Los hallazgos encontrados son:
+
+- A nivel categoría, se aplica un filtro para mostrar solo aquellas que superan los 5.000 de ingreso en Q2 2018. Como resultado, de las 47 categorías que se quedan, 10 de ellas reducen su ingreso con respecto al trimestre anterior.
+- A nivel vendedores, en Q2 2017 hicieron falta 11 vendedores (de 779) para llegar al umbral del 20 % del ingreso y en Q2 2018, 15 vendedores (de 1.676). En bruto el ingreso está más distribuido, pero en proporción se encuentra más concentrado.
+
 ## Estructura del proyecto
 
 ```text
 sql-olist/
 ├── README.md
 ├── docs/
-│   └── ficha_datos.md           # grano, clave y relaciones de cada tabla
+│   ├── ficha_datos.md           # grano, clave y relaciones de cada tabla
+│   └── decisiones.md            # decisiones metodológicas y su motivo
 ├── queries/
-│   └── 01_calidad_datos.sql     # Etapa 1: filas, claves, fechas y nulos
+│   ├── 01_calidad_datos.sql     # Etapa 1: filas, claves, fechas y nulos
+│   └── 02_ingresos_categorias_vendedores.sql  # Etapa 2: categorías y vendedores
 └── schema/
     ├── 01_create_tables.sql     # crea las 8 tablas
     └── 02_add_keys.sql          # añade claves primarias y foráneas (tras cargar los CSV)
