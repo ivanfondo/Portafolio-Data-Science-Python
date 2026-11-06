@@ -175,3 +175,89 @@ FROM plataforma_cte;
 -- si comparamos los meses de julio y agosto, los que quedan sueltos, de un año a otro crecen. En la consulta previa se puede ver el crecimiento
 -- por categoría.
 
+-- 2.4 Ingresos por vendedor y porcentaje sobre el total, Q2 2017 y Q2 2018
+
+WITH join_cte AS (
+  SELECT
+    a1.order_id,
+    a1.order_delivered_customer_date::DATE AS deliver, -- Nos quedamos sólo con la fecha
+    a2.seller_id,
+    a2.price
+  FROM orders AS a1 -- Unimos las tablas
+  INNER JOIN order_items AS a2
+  ON a1.order_id = a2.order_id
+  WHERE a1.order_status = 'delivered' -- Aplicamos filtros
+  AND a1.order_delivered_customer_date IS NOT NULL
+  AND a1.order_delivered_customer_date::DATE BETWEEN '2018-04-01' AND '2018-06-30' -- Filtro de fecha para filtrar por Q
+),
+vendedores_cte AS (
+  SELECT
+    seller_id,
+    SUM(price) AS ingreso
+  FROM join_cte
+  GROUP BY 1
+)
+SELECT
+  seller_id,
+  ingreso,
+  ROUND(100.0 * ingreso/ (SELECT SUM(ingreso) FROM vendedores_cte), 2) AS pct -- Calculamos porcentaje
+FROM vendedores_cte
+ORDER BY 2 DESC
+LIMIT 20; -- Mostramos solo los 20 primeros vendedores
+
+-- Conclusión: el cambio entre 2017 y 2018 apunta a que las ventas se dispersaron, dando lugar a un aumento de la competitividad entre los diferentes vendedores.
+-- Para comprobar esto de forma más precisa, en la siguiente consulta vamos aplicar un acumulado de ventas para ver cuantos vendedores se necesitan para
+-- alcanzar el 20% de los ingresos totales.
+
+-- 2.5 Vendedores necesarios para llegar al 20% del ingreso en Q2 2017 y 2018
+
+WITH join_cte AS (
+  SELECT
+    a1.order_id,
+    a1.order_delivered_customer_date::DATE AS deliver,
+    a2.seller_id,
+    a2.price,
+    a3.seller_state
+  FROM orders AS a1 -- Unimos las tablas
+  INNER JOIN order_items AS a2
+  ON a1.order_id = a2.order_id
+  INNER JOIN sellers AS a3
+  ON a2.seller_id = a3.seller_id
+  WHERE a1.order_status = 'delivered' -- Aplicamos filtros
+  AND a1.order_delivered_customer_date IS NOT NULL
+  AND a1.order_delivered_customer_date::DATE BETWEEN '2018-04-01' AND '2018-06-30' -- Filtro de fecha para filtrar por Q
+),
+vendedores_cte AS (
+  SELECT
+    seller_id,
+    SUM(price) AS ingreso
+  FROM join_cte
+  GROUP BY 1
+),
+acumulado_cte AS (
+  SELECT
+    seller_id,
+    ingreso,
+    ROW_NUMBER() OVER(ORDER BY ingreso DESC, seller_id) AS posicion,
+    SUM(ingreso) OVER(ORDER BY ingreso DESC, seller_id) AS ingreso_acumulado,
+    SUM(ingreso) OVER() AS ingreso_total,
+    COUNT(*) OVER() AS n_vendedores
+  FROM vendedores_cte
+)
+
+SELECT
+  seller_id,
+  ingreso,
+  posicion,
+  ingreso_acumulado,
+  ingreso_total,
+  n_vendedores,
+  ROUND(100.0 * ingreso_acumulado/ingreso_total, 2) AS pct
+FROM acumulado_cte
+LIMIT 20;
+
+-- Conclusión: en Q2 2017 se necesitan 11 vendedores (de 779) para llegar al 20% de ventas, lo que representa un 1.41% de los vendedores totales.
+-- Para el Q2 2018 se necesitan 15 vendedores (de 1676) para llegar al 20%, lo que representa un 0.89% de los vendedores totales.
+-- En bruto, las ventas están más repartidas (hacen falta 15 vendedores y no 11 para llegar al 20 %), porque la base de vendedores
+-- activos se ha más que duplicado. En proporción ocurre lo contrario: el 20 % del ingreso lo genera un grupo
+-- más pequeño (0.89 % de los vendedores frente al 1.41 %), así que el ingreso está más concentrado entre los que más venden.
