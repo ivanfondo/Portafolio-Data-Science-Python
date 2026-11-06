@@ -56,3 +56,10 @@ Como ya se comprobó en la Etapa 1, no es posible usar la totalidad de los datos
 ### 10. Estacionalidad
 
 - Las subidas del cuarto trimestre de 2017 se consideran estacionales (noviembre) y no un cambio de tendencia.
+
+### 11. Análisis de vendedores
+
+- Como los datos están anonimizados y no se sabe quién es cada vendedor, se analizan en conjunto y no por nombre, con el porcentaje de ventas de Q2 de 2017 y 2018.
+- Se usan esos trimestres concretamente para evitar la estacionalidad.
+- Para medir la concentración, se cuenta cuántos vendedores hacen falta para llegar al 20 % del ingreso.
+- El resultado se da en bruto y como porcentaje de vendedores activos, ya que el número de vendedores se más que duplica de un trimestre a otro (de 779 a 1.676).
