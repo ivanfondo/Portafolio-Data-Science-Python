@@ -48,7 +48,7 @@ SELECT
   SUM(CASE WHEN order_delivered_customer_date BETWEEN '2018-04-01' AND '2018-06-30' THEN price ELSE 0 END) AS q2_2018
 FROM join_cte
 GROUP BY 1
-ORDER BY 8 DESC;
+ORDER BY 7 DESC;
 
 -- Las cifras en valor absoluto muestran en general que las ventas crecen trimestre a trimestre. La mejor forma de consumir este resultado
 -- es mediante un gráfico de líneas. A continuación vamos a obtener el mismo resultado en porcentaje, que será más fácil de ver el comportamiento
