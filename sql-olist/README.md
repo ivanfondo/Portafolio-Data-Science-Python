@@ -39,6 +39,20 @@ Los hallazgos encontrados son:
 - A nivel categoría, se aplica un filtro para mostrar solo aquellas que superan los 5.000 de ingreso en Q2 2018. Como resultado, de las 47 categorías que se quedan, 10 de ellas reducen su ingreso con respecto al trimestre anterior.
 - A nivel vendedores, en Q2 2017 hicieron falta 11 vendedores (de 779) para llegar al umbral del 20 % del ingreso y en Q2 2018, 15 vendedores (de 1.676). En bruto el ingreso está más distribuido, pero en proporción se encuentra más concentrado.
 
+### Etapa 3: evolución y comparaciones
+
+La pregunta planteada es ¿cómo crece la plataforma?
+
+- Analizando el crecimiento de los ingresos mes a mes, se observa una gran variabilidad mensual de crecimiento, principalmente en los primeros meses al partir de una base pequeña. Esto lleva a calcular una media móvil a 3 meses para reducir esa variabilidad. El resultado es que la plataforma en la fase inicial tiene un gran crecimiento, de dos dígitos y se va desacelerando este crecimiento, hasta llegar a un dígito. Aunque el crecimiento es más lento, sigue siendo positivo.
+
+- En cuanto a la evolución de las categorías en tendencia, se comparan el segundo trimestre de 2017 (abril - junio) con el de 2018, lo que muestra que dentro del top 10 todo se mantiene igual salvo 2 categorías nuevas que entran al top. Aunque el top mantiene prcticamente las mismas categorías, estas si cambiaron de posición. Las 2 categorías que pierden posición dentro del top 10, siguen generando mayores ingresos en el 2018 que 2017. 
+
+Hay que ser cauteloso con esta información: es un análisis descriptivo que muestra qué ocurrió, pero no permite determinar por qué ocurrió ni qué va a ocurrir. Al tener un histórico de solo 19 meses, con un único ciclo anual, no se puede separar la tendencia de la estacionalidad y proyectar el futuro no es aconsejable.
+
+Consultas: [`queries/03_crecimiento_plataforma.sql`](queries/03_crecimiento_plataforma.sql).
+
+
+
 ## Estructura del proyecto
 
 ```text
@@ -49,7 +63,8 @@ sql-olist/
 │   └── decisiones.md            # decisiones metodológicas y su motivo
 ├── queries/
 │   ├── 01_calidad_datos.sql     # Etapa 1: filas, claves, fechas y nulos
-│   └── 02_ingresos_categorias_vendedores.sql  # Etapa 2: categorías y vendedores
+│   ├── 02_ingresos_categorias_vendedores.sql  # Etapa 2: categorías y vendedores
+│   └── 03_crecimiento_plataforma.sql          # Etapa 3: evolución mensual, media móvil y ranking
 └── schema/
     ├── 01_create_tables.sql     # crea las 8 tablas
     └── 02_add_keys.sql          # añade claves primarias y foráneas (tras cargar los CSV)
