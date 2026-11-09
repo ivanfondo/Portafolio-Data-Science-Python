@@ -63,3 +63,21 @@ Como ya se comprobó en la Etapa 1, no es posible usar la totalidad de los datos
 - Se usan esos trimestres concretamente para evitar la estacionalidad.
 - Para medir la concentración, se cuenta cuántos vendedores hacen falta para llegar al 20 % del ingreso.
 - El resultado se da en bruto y como porcentaje de vendedores activos, ya que el número de vendedores se más que duplica de un trimestre a otro (de 779 a 1.676).
+
+### 12. Análisis de crecimiento de la plataforma
+
+- Se analiza el ingreso mes a mes de febrero 2017 a agosto 2018, asignando cada pedido al mes de su fecha de entrega, igual que en la etapa 2.
+- Enero 2017 queda fuera por datos incompletos al inicio de la plataforma. Septiembre y octubre de 2018 quedan fuera por el corte de datos (ver entrada 6).
+
+### 13. Media móvil de 3 meses
+
+- Se calcula para eliminar el ruido de la variación mensual. Se usa como complemento de esta, no como comparación distinta.
+- Una ventana de 3 meses suaviza sin perder demasiados meses de un histórico corto.
+- La variación porcentual solo se calcula con ventanas completas de 3 meses, así que el primer dato es mayo 2017.
+
+### 14. Ranking de categorías
+
+- Se hace por categoría y no por producto, porque la mayoría de los productos vende muy poco y el ranking sería ruido.
+- Se comparan Q2 2017 y Q2 2018 para evitar la estacionalidad.
+- Se usa `DENSE_RANK` y se muestra el top 10 de Q2 2018.
+- Limitación: el top 10 de 2018 no muestra las categorías que salieron del top. Una bajada de posición no implica pérdida de ingreso.
