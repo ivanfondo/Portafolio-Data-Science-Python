@@ -51,6 +51,14 @@ Hay que ser cauteloso con esta información: es un análisis descriptivo que mue
 
 Consultas: [`queries/03_crecimiento_plataforma.sql`](queries/03_crecimiento_plataforma.sql).
 
+### Etapa 4: clientes que vuelven
+
+La pregunta que se plantea es ¿cuántos clientes vuelven en los 3 meses siguientes?
+
+- Analizando un rango temporal de 6 meses, un grupo actúa como base y otro como comparativa, se obtiene que de la base marzo - mayo 2018, sólo el 0.78% de clientes vuelven en el período de junio - agosto, 157 de 20.254. 
+- Con un porcentaje tan bajo de clientes que vuelven, el negocio muestra una gran dependencia de nuevos clientes. Hay que ser cautelosos con esta afirmación, ya que el período analizado también resulta ser demasiado pequeño.
+
+Consultas: [`queries/04_clientes_cohortes.sql`](queries/04_clientes_cohortes.sql).
 
 
 ## Estructura del proyecto
@@ -64,7 +72,8 @@ sql-olist/
 ├── queries/
 │   ├── 01_calidad_datos.sql     # Etapa 1: filas, claves, fechas y nulos
 │   ├── 02_ingresos_categorias_vendedores.sql  # Etapa 2: categorías y vendedores
-│   └── 03_crecimiento_plataforma.sql          # Etapa 3: evolución mensual, media móvil y ranking
+│   ├── 03_crecimiento_plataforma.sql          # Etapa 3: evolución mensual, media móvil y ranking
+│   └── 04_clientes_cohortes.sql               # Etapa 4: clientes que vuelven
 └── schema/
     ├── 01_create_tables.sql     # crea las 8 tablas
     └── 02_add_keys.sql          # añade claves primarias y foráneas (tras cargar los CSV)
