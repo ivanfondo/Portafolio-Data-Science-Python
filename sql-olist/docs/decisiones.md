@@ -81,3 +81,9 @@ Como ya se comprobó en la Etapa 1, no es posible usar la totalidad de los datos
 - Se comparan Q2 2017 y Q2 2018 para evitar la estacionalidad.
 - Se usa `DENSE_RANK` y se muestra el top 10 de Q2 2018.
 - Limitación: el top 10 de 2018 no muestra las categorías que salieron del top. Una bajada de posición no implica pérdida de ingreso.
+
+### 15. Clientes que vuelven
+
+- Se analiza marzo - agosto 2018, dividido en dos periodos de 3 meses: marzo - mayo (base) y junio - agosto (comparación). Dos periodos de la misma duración evitan que la tasa dependa del tiempo que tiene cada cliente para volver.
+- Un cliente que vuelve es aquel que compró en marzo - mayo y vuelve a comprar en junio - agosto. La métrica es el porcentaje de los clientes de la base que vuelven.
+- Se emplea la fecha de compra y el filtro de pedido entregado ya que conviene diferenciar entre fecha de entrega y fecha de compra, las cuales no van a ser las mismas.
