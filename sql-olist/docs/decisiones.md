@@ -87,3 +87,11 @@ Como ya se comprobó en la Etapa 1, no es posible usar la totalidad de los datos
 - Se analiza marzo - agosto 2018, dividido en dos periodos de 3 meses: marzo - mayo (base) y junio - agosto (comparación). Dos periodos de la misma duración evitan que la tasa dependa del tiempo que tiene cada cliente para volver.
 - Un cliente que vuelve es aquel que compró en marzo - mayo y vuelve a comprar en junio - agosto. La métrica es el porcentaje de los clientes de la base que vuelven.
 - Se emplea la fecha de compra y el filtro de pedido entregado ya que conviene diferenciar entre fecha de entrega y fecha de compra, las cuales no van a ser las mismas.
+
+### 16. Tiempo de entrega
+
+- Se mide el retraso como la diferencia en días entre la fecha de entrega y la estimada. Un valor positivo es retraso y uno negativo es adelanto.
+- Se usan solo pedidos entregados con fecha de entrega.
+- El periodo va de febrero 2017 a agosto 2018, en línea con la etapa 3.
+- Primero se calcula a nivel global y luego por mes. El mes se asigna por la fecha de compra.
+- Se usa la mediana y no la media, porque los retrasos tienen cola larga. Se calculan dos: la de todos los pedidos (mide el adelanto) y la de los pedidos con retraso (mide cuánto se retrasan).
