@@ -60,6 +60,17 @@ La pregunta que se plantea es ¿cuántos clientes vuelven en los 3 meses siguien
 
 Consultas: [`queries/04_clientes_cohortes.sql`](queries/04_clientes_cohortes.sql).
 
+### Etapa 5: entrega de paquetes
+
+La pregunta que se plantea en esta última fase es, ¿los pedidos se entregan a tiempo o se retrasan respecto a la fecha estimada?
+
+- Realizando el análisis de febrero 2017 a agosto 2018, el porcentaje de retraso general en la entrega es del 6.82%, es decir, de 95.453 pedidos registrados, 6509 llegan con retraso. Para calcular este valor se calcula la diferencia entre la fecha de entrega y la fecha de entrega estimada en el momento de la compra. Se calcula la mediana de días y nos devuelve un valor negativo, en donde los paquetes llegan con 12 días de antelación.
+- Para profundizar en la información se realiza el mismo análisis mes a mes, en donde todos los meses cuentan con un porcentaje de retraso que oscila cerca del valor general de 6.82% salvo 3 excepciones: noviembre 2017 (12,4 %), febrero 2018 (14,1 %) y marzo 2018 (19,0 %).
+
+Hay que ser cautelosos si queremos decir que la empresa cuenta con un buen servicio de mensajería, ya que la fecha estimada de entrega puede ser muy conservadora, jugando a favor de la fecha de entrega real.
+
+Consultas: [`queries/05_tiempo_entrega.sql`](queries/05_tiempo_entrega.sql).
+
 
 ## Estructura del proyecto
 
@@ -70,10 +81,11 @@ sql-olist/
 │   ├── ficha_datos.md           # grano, clave y relaciones de cada tabla
 │   └── decisiones.md            # decisiones metodológicas y su motivo
 ├── queries/
-│   ├── 01_calidad_datos.sql     # Etapa 1: filas, claves, fechas y nulos
+│   ├── 01_calidad_datos.sql                   # Etapa 1: filas, claves, fechas y nulos
 │   ├── 02_ingresos_categorias_vendedores.sql  # Etapa 2: categorías y vendedores
 │   ├── 03_crecimiento_plataforma.sql          # Etapa 3: evolución mensual, media móvil y ranking
-│   └── 04_clientes_cohortes.sql               # Etapa 4: clientes que vuelven
+│   ├── 04_clientes_cohortes.sql               # Etapa 4: clientes que vuelven
+│   └── 05_tiempo_entrega.sql                  # Etapa 5: retraso frente a la fecha estimada
 └── schema/
     ├── 01_create_tables.sql     # crea las 8 tablas
     └── 02_add_keys.sql          # añade claves primarias y foráneas (tras cargar los CSV)
